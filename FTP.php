@@ -121,16 +121,18 @@ class FTP {
   /**
    * Class Constructor
    * 
-   * @param string $username
-   * @param string $password
-   * @param ?string $type
-   * @param ?DateTime $date
+   * @param string $partner_name CARFAX Partner Name
+   * @param string $username CARFAX FTP username
+   * @param string $password CARFAX FTP password
+   * @param ?string $type Data Report Type ("HIST" or "PROD")
+   * @param ?DateTime $date Data Report Date
    * @throws None
    * @author Alec M.
    */
-  public function __construct(string $username, string $password, string $type = "PROD", \DateTime $date = null)
+  public function __construct(string $partner_name, string $username, string $password, string $type = "PROD", \DateTime $date = null)
   {
     // Set connection details
+    $this->partner_name = $partner_name;
     $this->username = $username;
     $this->password = $password;
 
@@ -144,9 +146,9 @@ class FTP {
   /**
    * Write a single Repair Order to the file
    * 
-   * @param array $data
-   * @param ?resource $handle
-   * @return bool
+   * @param array $data Repair Order data
+   * @param ?resource $handle File handle
+   * @return bool 
    * @author Alec M.
    */
   public function write(array $data, $handle = null) : bool
