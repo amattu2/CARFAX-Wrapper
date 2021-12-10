@@ -110,6 +110,13 @@ class FTP {
    */
   private $has_header = false;
 
+  /**
+   * Int Indicator of number of total Repair Order lines written
+   * 
+   * @var int
+   */
+  private $total_lines = 0;
+
 
   /**
    * Class Constructor
@@ -192,6 +199,7 @@ class FTP {
     }
 
     // Return
+    $this->total_lines++;
     return true;
   }
 
@@ -235,7 +243,6 @@ class FTP {
     fclose($this->handle);
     return $written;
   }
-
 
   /**
    * Write Report File Header into File
