@@ -18,14 +18,14 @@ class FileUploadedException extends \Exception {}
 class FTP {
   /**
    * VHR FTP host
-   * 
+   *
    * @var string
    */
   private const HOST = "ftp://data.carfax.com";
 
   /**
    * Report File Header Fields
-   * 
+   *
    * @var array
    */
   private const HEADER_FIELDS = [
@@ -47,7 +47,7 @@ class FTP {
     "MANAGEMENT_SYSTEM", /* TBD */
     "LOCATION_ID",
     "LOCATION_NAME",
-    "ADDREES",
+    "ADDRESS",
     "CITY",
     "STATE",
     "POSTAL_CODE",
@@ -57,62 +57,62 @@ class FTP {
 
   /**
    * CARFAX Partner Name
-   * 
+   *
    * @var string
    */
   private $partner_name = "";
 
   /**
    * CARFAX FTP username
-   * 
+   *
    * @var string
    */
   private $username = "";
 
   /**
    * CARFAX FTP password
-   * 
+   *
    * @var string
    */
   private $password = "";
 
   /**
    * Data Report Type
-   * 
+   *
    * @var string ("HIST" or "PROD")
    */
 
   /**
    * Data Report Date
-   * 
+   *
    * @var \DateTime
    */
   private $date = null;
 
   /**
    * Data Report File Handle
-   * 
+   *
    * @var resource
    */
   private $handle = null;
 
   /**
    * Data Report File Name
-   * 
+   *
    * @var string
    */
   private $filename = null;
 
   /**
    * Boolean Indicator of whether or not the file has the header
-   * 
+   *
    * @var bool
    */
   private $has_header = false;
 
   /**
    * Int Indicator of number of total Repair Order lines written
-   * 
+   *
    * @var int
    */
   private $total_lines = 0;
@@ -120,7 +120,7 @@ class FTP {
   /**
    * Boolean Indicator of whether or not the file has been uploaded
    * to the FTP server
-   * 
+   *
    * @var bool
    */
   private $was_uploaded = false;
@@ -128,7 +128,7 @@ class FTP {
 
   /**
    * Class Constructor
-   * 
+   *
    * @param string $partner_name CARFAX Partner Name
    * @param string $username CARFAX FTP username
    * @param string $password CARFAX FTP password
@@ -153,10 +153,10 @@ class FTP {
 
   /**
    * Write a single Repair Order to the file
-   * 
+   *
    * @param array $data Repair Order data
    * @param ?resource $handle File handle
-   * @return bool 
+   * @return bool
    * @throws FileUploadedException
    * @author Alec M.
    */
@@ -193,12 +193,12 @@ class FTP {
       if (!$this->filename) {
         return false;
       }
-      
+
       // Open the handle if it is not already open
       if (!$this->handle && !($this->handle = fopen(__DIR__ . "/" . $this->filename, "a"))) {
         return false;
-      }  
-      
+      }
+
       // Update handle reference
       $usedHandle = false;
       $handle = $this->handle;
@@ -212,6 +212,7 @@ class FTP {
     // Close the file if we used our own handle
     if (!$usedHandle) {
       fclose($handle);
+      $this->handle = null;
     }
 
     // Return
@@ -221,7 +222,7 @@ class FTP {
 
   /**
    * Write all Repair Orders to the file
-   * 
+   *
    * @param array $data An array of Repair Orders
    * @return int number of Repair Orders written
    * @throws FileUploadedException
@@ -247,27 +248,28 @@ class FTP {
     if (!$this->filename) {
       return 0;
     }
-    
+
     // Open the handle if it is not already open
     if (!$this->handle && !($this->handle = fopen(__DIR__ . "/" . $this->filename, "a"))) {
       return 0;
     }
-    
+
     // Iterate through data and call write()
     foreach ($data as $ro) {
       if ($this->write($ro, $this->handle)) {
         $written++;
       }
     }
-    
+
     // Return write status
     fclose($this->handle);
+    $this->handle = null;
     return $written;
   }
 
   /**
    * Connect to the FTP server and upload the file
-   * 
+   *
    * @param None
    * @return bool
    * @throws FileUploadedException
@@ -316,20 +318,21 @@ class FTP {
       $exec = curl_exec($ch);
       $err = curl_error($ch);
 
-      // Clean up      
+      // Clean up
       curl_close($ch);
-      flock($handle, LOCK_UN);      
-      $this->was_uploaded = $exec && !$err;            
+      flock($handle, LOCK_UN);
+      $this->was_uploaded = $exec && !$err;
     }
 
     // Return
     fclose($handle);
+    $this->handle = null;
     return $this->was_uploaded;
   }
 
   /**
    * Write Report File Header into File
-   * 
+   *
    * @param None
    * @return bool
    * @throws None
@@ -340,7 +343,7 @@ class FTP {
     // Generate filename
     if (!$this->filename) {
       $this->filename = $this->generateFilename();
-    }    
+    }
 
     // Check if file exists
     if (file_exists($this->filename) && $this->has_header) {
@@ -353,21 +356,22 @@ class FTP {
     };
 
     // Write header
-    $this->has_header = fputcsv($this->handle, self::HEADER_FIELDS, "|", '"') > 0 ? true : false;
+    $this->has_header = fputcsv($this->handle, self::HEADER_FIELDS, "|") > 0 ? true : false;
 
     // Return
-    fclose($this->handle);    
+    fclose($this->handle);
+    $this->handle = null;
     return $this->has_header;
   }
 
   /**
    * Generate Report File Name using Date and Type
-   * 
+   *
    * Notes:
    *    (1) The file name is formatted as:
    *       <partner_name>_<type>_RO_<MMDDYYYY>.txt
-   *       PartnerName_DataStatus_DataType_FileExportDate.txt 
-   * 
+   *       PartnerName_DataStatus_DataType_FileExportDate.txt
+   *
    * @param None
    * @return string
    * @throws None
