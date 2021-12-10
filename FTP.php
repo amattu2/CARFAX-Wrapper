@@ -97,6 +97,21 @@ class FTP {
   private $handle = null;
 
   /**
+   * Data Report File Name
+   * 
+   * @var string
+   */
+  private $filename = null;
+
+  /**
+   * Boolean Indicator of whether or not the file has the header
+   * 
+   * @var bool
+   */
+  private $has_header = false;
+
+
+  /**
    * Class Constructor
    * 
    * @param string $username
@@ -120,6 +135,109 @@ class FTP {
   }
 
   /**
+   * Write a single Repair Order to the file
+   * 
+   * @param array $data
+   * @param ?resource $handle
+   * @return bool
+   * @author Alec M.
+   */
+  public function write(array $data, $handle = null) : bool
+  {
+    // Keep track of which handle was used
+    $usedHandle = true;
+
+    // Check to see if the data array has the correct number of fields
+    if (count($data) !== 24) {
+      return false;
+    }
+
+    // Check each HEADER_FIELDS field to see if it is set in data
+    foreach (self::HEADER_FIELDS as $field) {
+      if (!isset($data[$field])) {
+        return false;
+      }
+    }
+
+    // Check which handle to use
+    if (!$handle) {
+      // Check if the report file handle is set
+      if (!$this->has_header && !$this->writeHeader()) {
+        return false;
+      }
+
+      // Check to see if filename is set
+      if (!$this->filename) {
+        return false;
+      }
+      
+      // Open the handle if it is not already open
+      if (!$this->handle && !($this->handle = fopen($this->filename, "a"))) {
+        return false;
+      }  
+      
+      // Update handle reference
+      $usedHandle = false;
+      $handle = $this->handle;
+    }
+
+    // Write the data to the file
+    if (!fputcsv($handle, $data, "|", '"')) {
+      return false;
+    }
+
+    // Close the file if we used our own handle
+    if (!$usedHandle) {
+      fclose($handle);
+    }
+
+    // Return
+    return true;
+  }
+
+  /**
+   * Write all Repair Orders to the file
+   * 
+   * @param array $data An array of Repair Orders
+   * @return int number of Repair Orders written
+   * @throws None
+   * @author Alec M.
+   */
+  public function writeAll(array $data) : int
+  {
+    // Keep track of how many were written
+    $written = 0;
+
+    // Check if the report file handle is set
+    if (!$this->has_header && !$this->writeHeader()) {
+      return 0;
+    }
+
+    // Check to see if filename is set
+    // PS: This should never happen
+    if (!$this->filename) {
+      return 0;
+    }
+    
+    // Open the handle if it is not already open
+    if (!$this->handle && !($this->handle = fopen($this->filename, "a"))) {
+      return 0;
+    }
+    
+    // Iterate through data and call write()
+    foreach ($data as $ro) {
+      if ($this->write($ro, $this->handle)) {
+        $written++;
+      }
+    }
+    
+    // Return write status
+    fclose($this->handle);
+    return $written;
+  }
+
+
+  /**
    * Write Report File Header into File
    * 
    * @param None
@@ -130,21 +248,26 @@ class FTP {
   private function writeHeader() : bool
   {
     // Generate filename
-    $filename = $this->generateFileName();
+    if (!$this->filename) {
+      $this->filename = $this->generateFilename();
+    }    
 
     // Check if file exists
-    if (file_exists($filename)) {
+    if (file_exists($this->filename) && $this->has_header) {
       return true;
     }
 
     // Generate new file
-    $this->handle = fopen($filename, "w");
+    if (!($this->handle = fopen($this->filename, "w"))) {
+      return false;
+    };
 
     // Write header
-    fputcsv($this->handle, self::HEADER_FIELDS, "|", '"');
+    $this->has_header = fputcsv($this->handle, self::HEADER_FIELDS, "|", '"') > 0 ? true : false;
 
     // Return
-    return true;
+    fclose($this->handle);    
+    return $this->has_header;
   }
 
   /**
