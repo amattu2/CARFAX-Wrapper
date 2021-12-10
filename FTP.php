@@ -10,7 +10,7 @@
 namespace amattu\CARFAX;
 
 // Exceptions
-class FileExistsException extends \Exception {}
+class FileUploadedException extends \Exception {}
 
 /**
  * This is a CARFAX VHR service history FTP integration helper class
@@ -21,7 +21,7 @@ class FTP {
    * 
    * @var string
    */
-  private const HOST = "data.carfax.com";
+  private const HOST = "ftp://data.carfax.com";
 
   /**
    * Report File Header Fields
@@ -117,6 +117,14 @@ class FTP {
    */
   private $total_lines = 0;
 
+  /**
+   * Boolean Indicator of whether or not the file has been uploaded
+   * to the FTP server
+   * 
+   * @var bool
+   */
+  private $was_uploaded = false;
+
 
   /**
    * Class Constructor
@@ -149,10 +157,16 @@ class FTP {
    * @param array $data Repair Order data
    * @param ?resource $handle File handle
    * @return bool 
+   * @throws FileUploadedException
    * @author Alec M.
    */
   public function write(array $data, $handle = null) : bool
   {
+    // Check to see if the file was already uploaded
+    if ($this->was_uploaded) {
+      throw new FileUploadedException("The file has already been uploaded to the FTP server");
+    }
+
     // Keep track of which handle was used
     $usedHandle = true;
 
@@ -181,7 +195,7 @@ class FTP {
       }
       
       // Open the handle if it is not already open
-      if (!$this->handle && !($this->handle = fopen($this->filename, "a"))) {
+      if (!$this->handle && !($this->handle = fopen(__DIR__ . "/" . $this->filename, "a"))) {
         return false;
       }  
       
@@ -210,11 +224,16 @@ class FTP {
    * 
    * @param array $data An array of Repair Orders
    * @return int number of Repair Orders written
-   * @throws None
+   * @throws FileUploadedException
    * @author Alec M.
    */
   public function writeAll(array $data) : int
   {
+    // Check to see if the file was already uploaded
+    if ($this->was_uploaded) {
+      throw new FileUploadedException("The file has already been uploaded to the FTP server");
+    }
+
     // Keep track of how many were written
     $written = 0;
 
@@ -230,7 +249,7 @@ class FTP {
     }
     
     // Open the handle if it is not already open
-    if (!$this->handle && !($this->handle = fopen($this->filename, "a"))) {
+    if (!$this->handle && !($this->handle = fopen(__DIR__ . "/" . $this->filename, "a"))) {
       return 0;
     }
     
@@ -247,11 +266,73 @@ class FTP {
   }
 
   /**
+   * Connect to the FTP server and upload the file
+   * 
+   * @param None
+   * @return bool
+   * @throws FileUploadedException
+   * @author Alec M.
+   */
+  public function upload() : bool
+  {
+    // Check to see if the file was already uploaded
+    if ($this->was_uploaded) {
+      throw new FileUploadedException("The file has already been uploaded to the FTP server");
+    }
+
+    // Check to see if the header has been written
+    if (!$this->has_header) {
+      return false;
+    }
+
+    // Check to see if any Repair Orders have been written
+    if ($this->total_lines <= 0) {
+      return false;
+    }
+
+    // Validate FTP partner name
+    if (!$this->partner_name) {
+      return false;
+    }
+
+    // Validate FTP username and password
+    if (!$this->username || !$this->password) {
+      return false;
+    }
+
+    // Connect to FTP server with cURL
+    $ch = curl_init();
+    $handle = fopen(__DIR__ . "/" . $this->filename, "r");
+    if (flock($handle, LOCK_EX)) {
+      curl_setopt($ch, CURLOPT_URL, "ftp://" . SELF::HOST . "/" . $this->filename);
+      curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+      curl_setopt($ch, CURLOPT_UPLOAD, 1);
+      curl_setopt($ch, CURLOPT_INFILE, $handle);
+      curl_setopt($ch, CURLOPT_INFILESIZE, filesize($handle));
+
+      // Execute the request
+      $exec = curl_exec($ch);
+      $err = curl_error($ch);
+
+      // Clean up      
+      curl_close($ch);
+      flock($handle, LOCK_UN);      
+      $this->was_uploaded = $exec && !$err;            
+    }
+
+    // Return
+    fclose($handle);
+    return $this->was_uploaded;
+  }
+
+  /**
    * Write Report File Header into File
    * 
    * @param None
    * @return bool
-   * @throws FileExistsException
+   * @throws None
    * @author Alec M.
    */
   private function writeHeader() : bool
@@ -267,7 +348,7 @@ class FTP {
     }
 
     // Generate new file
-    if (!($this->handle = fopen($this->filename, "w"))) {
+    if (!($this->handle = fopen(__DIR__ . "/" . $this->filename, "w"))) {
       return false;
     };
 
