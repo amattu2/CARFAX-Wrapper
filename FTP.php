@@ -81,6 +81,7 @@ class FTP {
    *
    * @var string ("HIST" or "PROD")
    */
+  private $type = "PROD";
 
   /**
    * Data Report Date
