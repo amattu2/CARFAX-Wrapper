@@ -220,7 +220,7 @@ class FTP {
     }
 
     // Write the data to the file
-    if (!fputcsv($handle, $data, "|", '"')) {
+    if (!fputs($handle, '"' . implode('"|"', $data) . '"' . "\n")) {
       return false;
     }
 
@@ -403,7 +403,7 @@ class FTP {
     };
 
     // Write header
-    $this->has_header = fputcsv($this->handle, self::HEADER_FIELDS, "|") > 0 ? true : false;
+    $this->has_header = fputs($this->handle, '"' . implode('"|"', SELF::HEADER_FIELDS) . '"' . "\n") > 0 ? true : false;
 
     // Return
     fclose($this->handle);
@@ -434,5 +434,18 @@ class FTP {
       $this->date->format("d"),
       $this->date->format("Y")
     );
+  }
+
+  /**
+   * Enclose the string argument in double quotes
+   *
+   * @param string $v string to be enclosed
+   * @return string string enclosed in double quotes
+   * @throws None
+   * @author Alec M.
+   */
+  private function enclose(string $v) : string
+  {
+    return "\"" . $v . "\"";
   }
 }

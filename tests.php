@@ -34,7 +34,7 @@ $ftpWrapper = new amattu\CARFAX\FTP("examplePTNER", "username", "password");
 
 $cont = [];
 
-for ($i = 0; $i < 200; $i++) {
+for ($i = 0; $i < 30; $i++) {
     $cont[] = [
         "VIN" => "1G1GCCBX3JX001788",
         "RO_OPEN_DATE" => "01/01/2017",
