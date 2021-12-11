@@ -319,15 +319,15 @@ class FTP {
 
     // Connect to FTP server with cURL
     $ch = curl_init();
-    $handle = fopen(__DIR__ . "/" . $this->filename, "r");
-    if (flock($handle, LOCK_EX)) {
+    $this->handle = fopen(__DIR__ . "/" . $this->filename, "r");
+    if ($this->handle && flock($this->handle, LOCK_EX)) {
       curl_setopt($ch, CURLOPT_URL, "ftp://" . SELF::HOST . "/" . $this->filename);
       curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
       curl_setopt($ch, CURLOPT_UPLOAD, 1);
-      curl_setopt($ch, CURLOPT_INFILE, $handle);
-      curl_setopt($ch, CURLOPT_INFILESIZE, filesize($handle));
+      curl_setopt($ch, CURLOPT_INFILE, $this->handle);
+      curl_setopt($ch, CURLOPT_INFILESIZE, filesize($this->filename));
 
       // Execute the request
       $exec = curl_exec($ch);
@@ -335,12 +335,12 @@ class FTP {
 
       // Clean up
       curl_close($ch);
-      flock($handle, LOCK_UN);
+      flock($this->handle, LOCK_UN);
       $this->was_uploaded = $exec && !$err;
     }
 
     // Return
-    fclose($handle);
+    fclose($this->handle);
     $this->handle = null;
     return $this->was_uploaded;
   }
@@ -359,6 +359,10 @@ class FTP {
     if (!file_exists(__DIR__ . "/" . $this->filename)) {
       return true;
     }
+
+    // Reset variables
+    $this->total_lines = 0;
+    $this->has_header = false;
 
     // Delete the file
     return unlink(__DIR__ . "/" . $this->filename);
