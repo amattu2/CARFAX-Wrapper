@@ -145,7 +145,7 @@ public function cleanUp() : bool
 
 ___
 
-### getTotalReports
+### getTotalRecords
 #### Usage
 This returns the total number of repair orders written to the report file. Does not include the header line.
 
