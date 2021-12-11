@@ -3,7 +3,7 @@
  * This is a basic test file for demonstrating the usage of the FTP, QuickVIN, and ServiceHistory classes.
 */
 
-require(__DIR__ . "/FTP.php");
+require(__DIR__ . "/FTP.class.php");
 
 $ftpWrapper = new amattu\CARFAX\FTP("examplePTNER", "username", "password");
 
