@@ -6,8 +6,13 @@ This is a CARFAX Vehicle History Reporting, QuickVIN, and Service History Check 
 
 As achieved through proprietary APIs and integration procedures. Using this PHP based toolkit is not possible without an existing CARFAX Service Data Transfer Facilitation Agreement, and it relies on API keys that are not publicly subscribable (You need to work with someone in the CARFAX Partner Development department).
 
+P.S.,
+[GitHub Copilot](https://copilot.github.com/) was partially used for development, which is the reason for the unnecessarily long and descriptive comments.
+
 # Usage
 ## FTP
+This is a helper class for reporting repair data to the CARFAX VHR system. It substantially eases the load required of a developer to implement CARFAX vehicle history reporting from a proprietary DMS/SMS system.
+
 ### constructor
 #### Usage
 Initialize the class component using the constructor
@@ -113,8 +118,72 @@ $wrapper->upload();
 public function upload() : bool
 ```
 
-# Notes
-N/A
+___
+
+## ServiceHistory
+This is a entirely static class used to fetch repair history data from CARFAX by a vehicle VIN.
+
+### setLocationId
+#### Usage
+Update the Location ID for the current [i]instance[/i] of the class. This is provided by CARFAX at the time of account setup.
+
+```PHP
+amattu\CARFAX\ServiceHistory::setLocationId("exampleLOC");
+```
+
+#### PHPDoc
+```PHP
+/**
+ * A Static function to Update the Location ID
+ *
+ * @param string $locationId
+ * @return void
+ * @author Alec M.
+ */
+public static function setLocationId(string $locationId) : void;
+```
+
+### setProductDataId
+#### Usage
+Update the Product Data ID for the current [i]instance[/i] of the class. It is the equivelent of a API key, and is CARFAX defined at the time of account setup.
+
+```PHP
+amattu\CARFAX\ServiceHistory::setProductDataId("exampleProductDataId");
+```
+
+#### PHPDoc
+```PHP
+/**
+ * A Static function to Update the Product Data ID
+ *
+ * @param string $productDataId
+ * @return void
+ * @author Alec M.
+ */
+public static function setProductDataId(string $productDataId) : void;
+```
+
+### get
+#### Usage
+This is the actual function exposed for fetching the vehicle history by VIN number. If you do not have the locationId or productDataId set, errors will be thrown. Everything else is error safe, including CARFAX API failures.
+
+```PHP
+$data = amattu\CARFAX\ServiceHistory::get("1G1GCCBX3JX001788");
+```
+
+#### PHPDoc
+```PHP
+/**
+ * A Static function to use cURL to make a request to the Service History API
+ *
+ * @param string $VIN
+ * @return array
+ * @throws InvalidArgumentException
+ * @throws UnexpectedValueException
+ * @author Alec M.
+ */
+public static function get(string $VIN) : array;
+```
 
 # Requirements & Dependencies
 N/A

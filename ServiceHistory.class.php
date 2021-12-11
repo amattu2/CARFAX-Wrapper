@@ -9,36 +9,37 @@
 // Class Namespace
 namespace amattu\CARFAX;
 
-// Exception Classes
-class UnknownHTTPException extends \Exception {}
-
 /**
  * This is a CARFAX Service History API wrapper class
  */
 class ServiceHistory {
   /**
    * Service History API endpoint
-   * 
+   *
    * @var string
    */
   private static $endpoint = "https://servicesocket.carfax.com/data/1";
 
   /**
    * CARFAX provided Product Key
-   * 
+   *
    * @var string
    */
   private static $productDataId = "";
 
   /**
    * CARFAX provided Location ID
-   * 
+   *
    * @var string
    */
   private static $locationId = "";
 
   /**
    * A Static function to Update the Location ID
+   *
+   * @param string $locationId
+   * @return void
+   * @author Alec M.
    */
   public static function setLocationId(string $locationId) : void
   {
@@ -47,6 +48,10 @@ class ServiceHistory {
 
   /**
    * A Static function to Update the Product Data ID
+   *
+   * @param string $productDataId
+   * @return void
+   * @author Alec M.
    */
   public static function setProductDataId(string $productDataId) : void
   {
@@ -55,6 +60,12 @@ class ServiceHistory {
 
   /**
    * A Static function to use cURL to make a request to the Service History API
+   *
+   * @param string $VIN
+   * @return array
+   * @throws InvalidArgumentException
+   * @throws UnexpectedValueException
+   * @author Alec M.
    */
   public static function get(string $VIN) : array
   {
@@ -65,12 +76,12 @@ class ServiceHistory {
 
     // Validate the Product Data ID
     if (self::$productDataId == "" || strlen(self::$productDataId) != 16) {
-      throw new \InvalidArgumentException("Product Data ID not valid");
+      throw new \UnexpectedValueException("Product Data ID not valid");
     }
 
     // Validate the Location ID
     if (self::$locationId == "" || strlen(self::$locationId) <= 1 || strlen(self::$locationId) > 50) {
-      throw new \InvalidArgumentException("Location ID not valid");
+      throw new \UnexpectedValueException("Location ID not valid");
     }
 
     // Create a cURL handle
@@ -91,7 +102,8 @@ class ServiceHistory {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     // Execute the request
-    $response = curl_exec($ch);
+    $data = curl_exec($ch);
+    $error = curl_error($ch);
     curl_close($ch);
 
     // TODO: Validate the response
