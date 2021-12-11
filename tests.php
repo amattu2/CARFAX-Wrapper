@@ -32,61 +32,42 @@ require(__DIR__ . "/FTP.class.php");
 
 $ftpWrapper = new amattu\CARFAX\FTP("examplePTNER", "username", "password");
 
-$ftpWrapper->write([
-    "VIN" => "1G1GCCBX3JX001788",
-    "RO_OPEN_DATE" => "01/01/2017",
-    "RO_CLOSE_DATE" => "01/01/2017",
-    "MILEAGE" => 198301,
-    "ODOMETER_MEASURE" => "MI",
-    "RO_INVOICE_NUMBER" => "123456789",
-    "SERVICE_DESCRIPTION" => "TEST DESC",
-    "LABOR_DESCRIPTION" => "TEST LABOR",
-    "PART_NAME_DESCRIPTION" => "TEST PART",
-    "PART_QUANTITY" => 1,
-    "MAKE" => "HONDA",
-    "MODEL" => "CIVIC",
-    "MODEL_YEAR" => 2015,
-    "PLATE" => "8CY8CZZ",
-    "PLATE_STATE" => "CA",
-    "MANAGEMENT_SYSTEM" => "examplePTNER",
-    "LOCATION_ID" => "exampleLOC",
-    "LOCATION_NAME" => "Example Location, LLC",
-    "ADDRESS" => "123 Main St",
-    "CITY" => "San Francisco",
-    "STATE" => "CA",
-    "POSTAL_CODE" => "94105",
-    "PHONE" => "415-555-1212",
-    "URL" => "http://example.com",
-]);
-$ftpWrapper->write([
-    "VIN" => "2G1GCCBX3JX001788",
-    "RO_OPEN_DATE" => "01/01/2017",
-    "RO_CLOSE_DATE" => "01/01/2017",
-    "MILEAGE" => 198301,
-    "ODOMETER_MEASURE" => "MI",
-    "RO_INVOICE_NUMBER" => "123456789",
-    "SERVICE_DESCRIPTION" => "TEST DESC",
-    "LABOR_DESCRIPTION" => "TEST LABOR",
-    "PART_NAME_DESCRIPTION" => "TEST PART",
-    "PART_QUANTITY" => 1,
-    "MAKE" => "HONDA",
-    "MODEL" => "CIVIC",
-    "MODEL_YEAR" => 2015,
-    "PLATE" => "8CY8CZZ",
-    "PLATE_STATE" => "CA",
-    "MANAGEMENT_SYSTEM" => "examplePTNER",
-    "LOCATION_ID" => "exampleLOC",
-    "LOCATION_NAME" => "Example Location, LLC",
-    "ADDRESS" => "123 Main St",
-    "CITY" => "San Francisco",
-    "STATE" => "CA",
-    "POSTAL_CODE" => "94105",
-    "PHONE" => "415-555-1212",
-    "URL" => "http://example.com",
-]);
+$cont = [];
+
+for ($i = 0; $i < 200; $i++) {
+    $cont[] = [
+        "VIN" => "1G1GCCBX3JX001788",
+        "RO_OPEN_DATE" => "01/01/2017",
+        "RO_CLOSE_DATE" => "01/01/2017",
+        "MILEAGE" => 198301,
+        "ODOMETER_MEASURE" => "MI",
+        "RO_INVOICE_NUMBER" => "123456789",
+        "SERVICE_DESCRIPTION" => "TEST DESC",
+        "LABOR_DESCRIPTION" => "TEST LABOR",
+        "PART_NAME_DESCRIPTION" => "TEST PART",
+        "PART_QUANTITY" => 1,
+        "MAKE" => "HONDA",
+        "MODEL" => "CIVIC",
+        "MODEL_YEAR" => 2015,
+        "PLATE" => "8CY8CZZ",
+        "PLATE_STATE" => "CA",
+        "MANAGEMENT_SYSTEM" => "examplePTNER",
+        "LOCATION_ID" => "exampleLOC",
+        "LOCATION_NAME" => "Example Location, LLC",
+        "ADDRESS" => "123 Main St",
+        "CITY" => "San Francisco",
+        "STATE" => "CA",
+        "POSTAL_CODE" => "94105",
+        "PHONE" => "415-555-1212",
+        "URL" => "http://example.com",
+    ];
+}
+
+// Write all elements
+$ftpWrapper->writeAll($cont);
 
 // This will delete the file that we just made
-//$wrapper->cleanUp();
+//$ftpWrapper->cleanUp();
 
 /* Service History Check (SHC) Examples */
 
