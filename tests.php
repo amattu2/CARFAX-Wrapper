@@ -3,6 +3,9 @@
  * This is a basic test file for demonstrating the usage of the FTP, QuickVIN, and ServiceHistory classes.
 */
 
+// Config .ini file for testing purposes
+$conf = parse_ini_file('config.ini');
+
 // FTP Helper Examples
 require(__DIR__ . "/FTP.class.php");
 
@@ -65,8 +68,8 @@ $ftpWrapper->write([
 require(__DIR__ . "/ServiceHistory.class.php");
 
 // Configure the Service History class
-amattu\CARFAX\ServiceHistory::setLocationId("exampleLOC");
-amattu\CARFAX\ServiceHistory::setProductDataId("exampleLOC");
+amattu\CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
+amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
 
 $data = amattu\CARFAX\ServiceHistory::get("1G1GCCBX3JX001788");
 
