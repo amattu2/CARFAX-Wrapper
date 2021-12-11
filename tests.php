@@ -85,15 +85,22 @@ $ftpWrapper->write([
     "URL" => "http://example.com",
 ]);
 
-// Service History Examples
+/* Service History Check (SHC) Examples */
+
+// Required file
 require(__DIR__ . "/ServiceHistory.class.php");
 
 // Configure the Service History class
 amattu\CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
 amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
 
-$data = amattu\CARFAX\ServiceHistory::get("1G1GCCBX3JX001788");
+// Basic example
+echo "<pre>";
+print_r(amattu\CARFAX\ServiceHistory::get("3GYFNAEY2BS585380"));
+echo "</pre>";
 
-print_r($data);
 
+/* QuickVIN Example */
+
+// Required file
 //require(__DIR__ . "/QuickVIN.php");

@@ -76,7 +76,11 @@ class ServiceHistory {
    * A Static function to use cURL to make a request to the Service History API
    *
    * @param string $VIN
-   * @return array
+   * @return array [
+   *  "Decode" => Array,
+   *  "Overview" => Array,
+   *  "History" => Array,
+   * ]
    * @throws InvalidArgumentException
    * @throws UnexpectedValueException
    * @author Alec M.
@@ -98,6 +102,65 @@ class ServiceHistory {
       throw new \UnexpectedValueException("Location ID not valid");
     }
 
+    // Submit the request
+    $result = self::post([
+      "productDataId" => self::$productDataId,
+      "locationId" => self::$locationId,
+      "vin" => $VIN,
+    ]);
+    $formatted_result = [
+      "Decode" => [],
+      "Overview" => [],
+      "Records" => [],
+    ];
+
+    // Parse VIN Decode
+    if (!empty($result["serviceHistory"])) {
+      $formatted_result["Decode"]["VIN"] = $result["serviceHistory"]["vin"];
+      $formatted_result["Decode"]["Year"] = $result["serviceHistory"]["year"];
+      $formatted_result["Decode"]["Make"] = $result["serviceHistory"]["make"];
+      $formatted_result["Decode"]["Model"] = $result["serviceHistory"]["model"];
+      $formatted_result["Decode"]["Trim"] = $result["serviceHistory"]["bodyTypeDescription"] ?: "";
+      $formatted_result["Decode"]["Driveline"] = $result["serviceHistory"]["driveline"] ?: "";
+    }
+
+    // Parse serviceCategories
+    if (!empty($result["serviceHistory"]) && !empty($result["serviceHistory"]["serviceCategories"])) {
+      foreach ($result["serviceHistory"]["serviceCategories"] as $category) {
+        $formatted_result["Overview"][] = [
+          "Name" => $category["serviceName"],
+          "Date" => isset($category["dateOfLastService"]) ? $category["dateOfLastService"] : null,
+          "Odometer" => intval(str_replace(",", "", $category["odometerOfLastService"])) ?: 0,
+        ];
+      }
+    }
+
+    // Parse displayRecords
+    if (!empty($result["serviceHistory"]) && !empty($result["serviceHistory"]["displayRecords"])) {
+      foreach ($result["serviceHistory"]["displayRecords"] as $record) {
+        $formatted_result["Records"][] = [
+          "Date" => $record["displayDate"] !== "Not Reported" ? $record["displayDate"] : null,
+          "Odometer" => isset($record["odometer"]) ? intval(str_replace(",", "", $record["odometer"])) : 0,
+          "Services" => is_array($record["text"]) ? $record["text"] : [],
+          "Type" => $record["type"] === "service" ? "Service" : "Recall",
+        ];
+      }
+    }
+
+    // Return the formatted result
+    return $formatted_result;
+  }
+
+  /**
+   * A private function to submit a POST request to the Service History API
+   *
+   * @param array $fields
+   * @return ?array $response
+   * @throws None
+   * @author Alec M.
+   */
+  private static function post(array $fields) : ?array
+  {
     // Create a cURL handle
     $ch = curl_init();
 
@@ -108,21 +171,33 @@ class ServiceHistory {
       "Content-Type: application/json",
       "Accept: application/json",
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-      "productDataId" => self::$productDataId,
-      "locationId" => self::$locationId,
-      "vin" => $VIN,
-    ]));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
     // Execute the request
-    $data = curl_exec($ch);
-    $error = curl_error($ch);
+    $data = null;
+    $resp = curl_exec($ch);
+    $errn = curl_error($ch);
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    // TODO: Validate the response
-    // TODO: Parse and return the response
+    // Validate the response
+    if (!$resp || $errn || $status_code !== 200 || !($data = json_decode($resp, true))) {
+      return null;
+    }
 
-    return [];
+    // Check for errorMessages
+    if ($data["errorMessages"] && !empty($data["errorMessages"])) {
+      return null;
+    }
+
+    // Check for serviceHistory
+    if (!$data["serviceHistory"] || !is_array($data["serviceHistory"])) {
+      return null;
+    }
+
+    // Return the parsed response
+    return $data;
   }
 }

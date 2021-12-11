@@ -127,7 +127,7 @@ This is a entirely static class used to fetch repair history data from CARFAX by
 
 ### setLocationId
 #### Usage
-Update the Location ID for the current [i]instance[/i] of the class. This is provided by CARFAX at the time of account setup.
+Update the Location ID for the current *instance* of the class. This is provided by CARFAX at the time of account setup.
 
 ```PHP
 amattu\CARFAX\ServiceHistory::setLocationId("exampleLOC");
@@ -149,7 +149,7 @@ ___
 
 ### setProductDataId
 #### Usage
-Update the Product Data ID for the current [i]instance[/i] of the class. It is the equivelent of a API key, and is CARFAX defined at the time of account setup.
+Update the Product Data ID for the current *instance* of the class. It is the equivelent of a API key, and is CARFAX defined at the time of account setup.
 
 ```PHP
 amattu\CARFAX\ServiceHistory::setProductDataId("exampleProductDataId");
@@ -171,7 +171,11 @@ ___
 
 ### get
 #### Usage
-This is the actual function exposed for fetching the vehicle history by VIN number. If you do not have the locationId or productDataId set, errors will be thrown. Everything else is error safe, including CARFAX API failures.
+This is the actual function exposed for fetching the vehicle history by VIN number. If you do not have the locationId or productDataId set, errors will be thrown. Everything else is error safe, including CARFAX API failures. The function will always return an array or throw an error.
+
+If a record (Overview or History) does NOT have a valid:
+- Odometer, it will be equal to `0`
+- Date, it will be equal to `NULL`
 
 ```PHP
 $data = amattu\CARFAX\ServiceHistory::get("1G1GCCBX3JX001788");
@@ -183,12 +187,88 @@ $data = amattu\CARFAX\ServiceHistory::get("1G1GCCBX3JX001788");
  * A Static function to use cURL to make a request to the Service History API
  *
  * @param string $VIN
- * @return array
+ * @return array [
+ *  "Decode" => Array,
+ *  "Overview" => Array,
+ *  "History" => Array,
+ * ]
  * @throws InvalidArgumentException
  * @throws UnexpectedValueException
  * @author Alec M.
  */
 public static function get(string $VIN) : array;
+```
+
+#### Expected Output
+*Abbreviated substantially*
+
+```JSON
+{
+  "Decode": {
+    "VIN": "1G1GCCBX4JX001298",
+    "Year": "2011",
+    "Make": "CADILLAC",
+    "Model": "LUXURY",
+    "Trim": "",
+    "Driveline": ""
+  },
+  "Overview": [
+    {
+      "Name": "Tire rotation",
+      "Date": "12/24/2013",
+      "Odometer": 42185
+    },
+    {
+      "Name": "Emissions test",
+      "Date": "04/20/2021",
+      "Odometer": 127005
+    },
+    {
+      "Name": "Battery Replacement",
+      "Date": "11/21/2019",
+      "Odometer": 112682
+    },
+  ],
+  "Records": [
+    {
+      "Date": "01/12/2011",
+      "Odometer": 5,
+      "Services": [
+        "Vehicle serviced",
+        "Pre-delivery inspection completed",
+        "Window tint installed",
+        "Vehicle washed/detailed",
+        "Tire condition and pressure checked",
+        "Nitrogen fill tires",
+        "Anti-theft/keyless device/alarm installed",
+        "Safety inspection performed"
+      ],
+      "Type": "Service"
+    },
+    {
+      "Date": null,
+      "Odometer": 92500,
+      "Services": [
+        "Title issued or updated",
+        "Registration issued or renewed",
+        "Passed safety inspection",
+        "Vehicle color noted as Brown"
+      ],
+      "Type": "Service"
+    },
+    {
+      "Date": "06/25/2021",
+      "Odometer": 0,
+      "Services": [
+        "Manufacturer Safety recall issued",
+        "NHTSA #21V573",
+        "Recall #N213240870",
+        "Status: Remedy Available"
+      ],
+      "Type": "Recall"
+    }
+  ]
+}
 ```
 
 # Requirements & Dependencies
