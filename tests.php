@@ -85,6 +85,9 @@ $ftpWrapper->write([
     "URL" => "http://example.com",
 ]);
 
+// This will delete the file that we just made
+//$wrapper->cleanUp();
+
 /* Service History Check (SHC) Examples */
 
 // Required file
@@ -96,7 +99,7 @@ amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
 
 // Basic example
 echo "<pre>";
-print_r(amattu\CARFAX\ServiceHistory::get("3GYFNAEY2BS585380"));
+//print_r(amattu\CARFAX\ServiceHistory::get("3GYFNAEY2BS585380"));
 echo "</pre>";
 
 
