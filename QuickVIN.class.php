@@ -79,10 +79,112 @@ class QuickVIN {
    * @param string $state The Plate State
    * @param string|null $VIN Optional VIN to decode
    * @return array
+   * @throws TypeError
+   * @throws InvalidArgumentException
+   * @throws UnexpectedValueException
    * @author Alec M.
    */
-  public static function decode(string $plate, string $state, ?string $VIN) : array
+  public static function decode(string $plate, string $state, ?string $VIN = null) : array
   {
-    return [];
+    // Validate the data plate argument
+    if (empty($plate) || strlen($plate) < 1 || strlen($plate) > 10) {
+      throw new \InvalidArgumentException("Invalid Plate Number provided");
+    }
+
+    // Validate the state argument
+    if (empty($state) || strlen($state) != 2) {
+      throw new \InvalidArgumentException("Invalid Plate State provided");
+    }
+
+    // Validate the VIN argument if provided
+    if ($VIN && !empty($VIN) && strlen($VIN) != 17) {
+      throw new \InvalidArgumentException("Invalid VIN provided");
+    }
+
+    // Validate the Product Data ID
+    if (empty(self::$productDataId) || strlen(self::$productDataId) != 16) {
+      throw new \UnexpectedValueException("Product Data ID is not valid");
+    }
+
+    // Validate the Location ID
+    if (empty(self::$locationId) || strlen(self::$locationId) <= 1 || strlen(self::$locationId) > 50) {
+      throw new \UnexpectedValueException("Location ID is not valid");
+    }
+
+    // Make the request
+    $data = self::post([
+      "license-plate" => "![CDATA[" . $plate . "]]",
+      "state" => "![CDATA[" . $state . "]]",
+      "vin" => "![CDATA[" . $VIN . "]]",
+      "product-data-id" => self::$productDataId,
+      "location-id" => self::$locationId,
+    ]);
+
+    // TODO: Validate the response
+
+    return $data ?? [];
+  }
+
+  /**
+   * Send a POST request to the API endpoint
+   *
+   * @param string $name
+   * @return ?array The API response
+   * @throws TypeError
+   * @author Alec M.
+   */
+  private static function post(array $data) : ?array
+  {
+    // Create a cURL handle
+    $ch = curl_init();
+    $xml = self::buildXML($data);
+
+    // Set the options
+    curl_setopt($ch, CURLOPT_URL, self::$endpoint);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      "Content-Type: text/xml",
+      "Content-Length: " . strlen($xml)
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+    // Execute the request
+    $data = null;
+    $resp = curl_exec($ch);
+    $errn = curl_error($ch);
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    // TODO: Validate the response
+    echo $resp;
+
+    return null; // TBD
+  }
+
+  /**
+   * Generate XML for a API Request
+   *
+   * @param array $data [key => value, ...]
+   * @throws TypeError
+   * @return string
+   */
+  private static function buildXML(array $data) : string
+  {
+    // Build the XML Request
+    $xml = new \SimpleXMLElement("<carfax-request></carfax-request>");
+
+    // Add elements
+    foreach ($data as $key => $value) {
+      if (!$key || !$value) {
+        continue;
+      }
+
+      $xml->addChild($key, $value);
+    }
+
+    // Return the XML
+    return $xml->asXML();
   }
 }

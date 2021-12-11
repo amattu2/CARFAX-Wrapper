@@ -67,7 +67,7 @@ for ($i = 0; $i < 30; $i++) {
 $ftpWrapper->writeAll($cont);
 
 // This will delete the file that we just made
-//$ftpWrapper->cleanUp();
+$ftpWrapper->cleanUp();
 
 /* Service History Check (SHC) Examples */
 
@@ -87,4 +87,9 @@ echo "</pre>";
 /* QuickVIN Example */
 
 // Required file
-//require(__DIR__ . "/QuickVIN.php");
+require(__DIR__ . "/QuickVIN.class.php");
+
+amattu\CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
+amattu\CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
+
+amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
