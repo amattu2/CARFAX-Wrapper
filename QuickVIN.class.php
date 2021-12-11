@@ -23,9 +23,6 @@
 // Class Namespace
 namespace amattu\CARFAX;
 
-// Exception Classes
-class UnknownHTTPException extends \Exception {}
-
 /**
  * This is a CARFAX QuickVIN API wrapper class
  */
@@ -35,5 +32,57 @@ class QuickVIN {
    *
    * @var string
    */
-  private $endpoint = "https://quickvin.carfax.com/1";
+  private static $endpoint = "https://quickvin.carfax.com/1";
+
+  /**
+   * CARFAX provided Product Key
+   *
+   * @var string
+   */
+  private static $productDataId = "";
+
+  /**
+   * CARFAX provided Location ID
+   *
+   * @var string
+   */
+  private static $locationId = "";
+
+  /**
+   * A Static function to Update the Location ID
+   *
+   * @param string $locationId
+   * @return void
+   * @author Alec M.
+   */
+  public static function setLocationId(string $locationId) : void
+  {
+    self::$locationId = $locationId;
+  }
+
+  /**
+   * A static function to Update the Product Data ID
+   *
+   * @param string $productDataId
+   * @return void
+   * @author Alec M.
+   */
+  public static function setProductDataId(string $productDataId) : void
+  {
+    self::$productDataId = $productDataId;
+  }
+
+  /**
+   * Decode the Plate Number to a VIN
+   *
+   * @param string $plate The Plate Number
+   * @param string $state The Plate State
+   * @param string|null $VIN Optional VIN to decode
+   * @return array
+   * @author Alec M.
+   */
+  public static function decode(string $plate, string $state, ?string $VIN) : array
+  {
+    return [];
+  }
 }
