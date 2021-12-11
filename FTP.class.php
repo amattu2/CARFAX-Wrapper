@@ -346,6 +346,38 @@ class FTP {
   }
 
   /**
+   * Clean up the workspace by deleting the report file
+   *
+   * @param None
+   * @return boolean
+   * @throws None
+   * @author Alec M.
+   */
+  public function cleanUp() : bool
+  {
+    // Check to see if the file exists
+    if (!file_exists(__DIR__ . "/" . $this->filename)) {
+      return true;
+    }
+
+    // Delete the file
+    return unlink(__DIR__ . "/" . $this->filename);
+  }
+
+  /**
+   * Return the total Repair Orders written to the file
+   *
+   * @param None
+   * @return int number of Repair Orders written
+   * @throws None
+   * @author Alec M.
+   */
+  public function getTotalReports() : int
+  {
+    return $this->total_lines;
+  }
+
+  /**
    * Write Report File Header into File
    *
    * @param None

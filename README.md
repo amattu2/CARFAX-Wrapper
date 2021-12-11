@@ -122,6 +122,51 @@ public function upload() : bool
 
 ___
 
+### cleanUp
+#### Usage
+This is an entirely optional function that will delete the Repair Order file. It should be called after `upload`.
+
+```PHP
+$isCleaned = $wrapper->cleanUp();
+```
+
+#### PHPDoc
+```PHP
+/**
+ * Clean up the workspace by deleting the report file
+ *
+ * @param None
+ * @return boolean
+ * @throws None
+ * @author Alec M.
+ */
+public function cleanUp() : bool
+```
+
+___
+
+### getTotalReports
+#### Usage
+This returns the total number of repair orders written to the report file. Does not include the header line.
+
+```PHP
+$numRecords = $wrapper->getTotalRecords();
+```
+
+#### PHPDoc
+```PHP
+/**
+ * Return the total Repair Orders written to the file
+ *
+ * @param None
+ * @return int number of Repair Orders written
+ * @throws None
+ * @author Alec M.
+ */
+public function getTotalRecords() : int
+```
+___
+
 ## ServiceHistory
 This is a entirely static class used to fetch repair history data from CARFAX by a vehicle VIN.
 
