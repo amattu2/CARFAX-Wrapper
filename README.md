@@ -97,6 +97,8 @@ $successes = $wrapper->writeAll(
 public function writeAll(array $data) : int;
 ```
 
+___
+
 ### upload
 #### Usage
 Submit the generated record to the CARFAX FTP endpoint.
@@ -143,6 +145,8 @@ amattu\CARFAX\ServiceHistory::setLocationId("exampleLOC");
 public static function setLocationId(string $locationId) : void;
 ```
 
+___
+
 ### setProductDataId
 #### Usage
 Update the Product Data ID for the current [i]instance[/i] of the class. It is the equivelent of a API key, and is CARFAX defined at the time of account setup.
@@ -162,6 +166,8 @@ amattu\CARFAX\ServiceHistory::setProductDataId("exampleProductDataId");
  */
 public static function setProductDataId(string $productDataId) : void;
 ```
+
+___
 
 ### get
 #### Usage
