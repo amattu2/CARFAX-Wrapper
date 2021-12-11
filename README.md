@@ -41,7 +41,7 @@ ___
 
 ### write
 #### Usage
-Write a single record to the export file.
+Write a single record to the export file. Please Note: **This function DOES NOT validate field values. It only writes what was provided.** Your implementation of the class will need to validate Repair Order field values. **This ONLY ensures that the field is present in the array.**
 
 ```PHP
 $success = $wrapper->write([
@@ -67,7 +67,7 @@ ___
 
 ### writeAll
 #### Usage
-Write an array of repair orders to the report file.
+Write an array of repair orders to the report file. This is an efficient wrapper to the `write()` method, and maintains a file handle at all times. If you are able to write a multitude of Repair Orders at a single time, use this. Please Note: **This function DOES NOT validate field values. It only writes what was provided.** Your implementation of the class will need to validate Repair Order field values. **This ONLY ensures that the field is present in the array.**
 
 ```PHP
 $successes = $wrapper->writeAll(
