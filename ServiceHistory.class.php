@@ -114,6 +114,11 @@ class ServiceHistory {
       "Records" => [],
     ];
 
+    // Validate the result
+    if (!$result || empty($result)) {
+      return $formatted_result;
+    }
+
     // Parse VIN Decode
     if (!empty($result["serviceHistory"])) {
       $formatted_result["Decode"]["VIN"] = $result["serviceHistory"]["vin"];
