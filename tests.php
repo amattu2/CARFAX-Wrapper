@@ -79,9 +79,9 @@ amattu\CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
 amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
 
 // Basic example
-echo "<pre>";
+//echo "<pre>";
 //print_r(amattu\CARFAX\ServiceHistory::get("3GYFNAEY2BS585380"));
-echo "</pre>";
+//echo "</pre>";
 
 
 /* QuickVIN Example */
@@ -92,4 +92,7 @@ require(__DIR__ . "/QuickVIN.class.php");
 amattu\CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
 amattu\CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
 
-amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
+// Basic example
+//echo "<pre>";
+//amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
+//echo "</pre>";

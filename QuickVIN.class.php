@@ -157,10 +157,15 @@ class QuickVIN {
     $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    // TODO: Validate the response
-    echo $resp;
+    // Validate the response
+    if (!$resp || $errn || $status_code !== 200 || !($data = self::parseXML($resp))) {
+      return null;
+    }
 
-    return null; // TBD
+    // TBD: Validate response attributes
+    //print_r($data);
+
+    return $data;
   }
 
   /**
@@ -186,5 +191,33 @@ class QuickVIN {
 
     // Return the XML
     return $xml->asXML();
+  }
+
+  /**
+   * Parse API XML Response
+   *
+   * @param string $xml
+   * @return array|null
+   * @throws TypeError
+   * @author Alec M.
+   */
+  private static function parseXML(string $xml) : ?array
+  {
+    // Response data
+    $data = null;
+
+    // Build the XML element
+    try {
+      $data = new \SimpleXMLElement($xml);
+    } catch (\Exception $e) {
+      return null;
+    }
+
+    // Attempt to parse the XML
+    try {
+      return json_decode(json_encode($data), true);
+    } catch (\Exception $e) {
+      return null;
+    }
   }
 }
