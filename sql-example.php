@@ -40,6 +40,10 @@
  * This does not include basics like the ticket date is valid / set
  */
 
+ /**** FILE SETUP ****/
+ /**** FILE SETUP ****/
+ /**** FILE SETUP ****/
+
 // Include the FTP class
 require(__DIR__ . '/FTP.class.php');
 
@@ -49,13 +53,21 @@ $config = parse_ini_file(__DIR__ . '/config.ini');
 // Initialize the MySQLi connection using config credentials
 $mysqli = new mysqli($config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_NAME']);
 
+// Initialize the FTP wrapper using config credentials
+$ftpWrapper = new amattu\CARFAX\FTP($config["CF_PARTNER"], $config["FTP_USERNAME"], $config["FTP_PASSWORD"]);
+
 // Ensure the connection is working
 if ($mysqli->connect_errno) {
   echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   die();
 }
 
+/**** MYSQLI DATA EXTRACTION ****/
+/**** MYSQLI DATA EXTRACTION ****/
+/**** MYSQLI DATA EXTRACTION ****/
+
 // The query to get the tickets
+// TODO: Change this to match your database structure
 $query = "SELECT
     c.VIN AS VIN,
     DATE_FORMAT(a.Created, '%m/%d/%Y') AS RO_OPEN_DATE,
@@ -63,59 +75,99 @@ $query = "SELECT
     a.Mileage AS MILEAGE,
     'MI' as ODOMETER_MEASURE,
     a.EstNum AS RO_INVOICE_NUMBER,
-    'TO BE DONE' AS SERVICE_DESCRIPTION,
-    'TO BE DONE' AS LABOR_DESCRIPTION,
-    'TO BE DONE' AS PART_NAME_DESCRIPTION,
-    'TO BE DONE' AS PART_QUANTITY,
+    '' AS SERVICE_DESCRIPTION,
+    '' AS LABOR_DESCRIPTION,
+    '' AS PART_NAME_DESCRIPTION,
+    '' AS PART_QUANTITY,
+    b.JobDesc AS LINE_DESC,
+    b.Quantity AS LINE_QUANTITY,
+    b.InvType AS LINE_TYPE,
     c.Make AS MAKE,
     c.Model AS MODEL,
     c.ModYear AS MODEL_YEAR,
     '' AS PLATE,
     '' AS PLATE_STATE,
-    'TO BE DETERMINED' AS MANAGEMENT_SYSTEM,
-    'TO BE DONE' AS LOCATION_ID,
-    'TO BE DONE' AS LOCATION_NAME,
-    'TO BE DONE' AS ADDRESS,
-    'TO BE DONE' AS CITY,
-    'TO BE DONE' AS STATE,
-    'TO BE DONE' AS POSTAL_CODE,
-    'TO BE DONE' AS PHONE,
-    'TO BE DONE' AS URL
+    'NA' AS MANAGEMENT_SYSTEM,
+    'NA' AS LOCATION_ID,
+    e.Name AS LOCATION_NAME,
+    e.Street AS ADDRESS,
+    e.City AS CITY,
+    e.State AS STATE,
+    e.Zip AS POSTAL_CODE,
+    '' AS PHONE,
+    '' AS URL
   FROM Invoices a
     LEFT JOIN InvoiceItems b ON a.EstNum = b.EstNum
     LEFT JOIN Vehicles c ON c.CarId = a.CarId
     LEFT JOIN Customers d ON c.CusId = d.CusId
+    LEFT JOIN Accounts e ON a.AccountID = e.AccountID
   WHERE a.Private = 0
     AND c.Private = 0
     AND d.Private = 0
     AND a.Mileage > 0
     AND a.Total > 0
     AND a.TicketType = 'Invoice'
-    AND c.VIN != ''
-  LIMIT 0, 20
+    AND CHAR_LENGTH(c.VIN) = 17
+  ORDER BY a.EstNum ASC
+  LIMIT 300000, 100
 ";
 
 // Run the query
 $result = $mysqli->query($query);
-$count = $result->num_rows;
+$rows = [];
+if ($result) {
+  $numRows = $result->num_rows;
 
-if (!$result) {
+  echo "Selected <b>$numRows</b> repair orders to be exported<br><br>";
+
+  // Append the rows to an array
+  while($row = $result->fetch_assoc()) {
+    // Dynamically adjust values
+    $row['MANAGEMENT_SYSTEM'] = 'EXAMPLE MGMT SYS';
+    $row['LOCATION_ID'] = $config["CF_PARTNER"];
+    if ($row['LINE_TYPE'] === 'Labor') {
+      $row['LABOR_DESCRIPTION'] = $row['LINE_DESC'];
+    } else {
+      $row['PART_NAME_DESCRIPTION'] = $row['LINE_DESC'];
+      $row['PART_QUANTITY'] = $row['LINE_QUANTITY'];
+    }
+    unset($row['LINE_DESC']);
+    unset($row['LINE_QUANTITY']);
+    unset($row['LINE_TYPE']);
+
+    $rows[] = $row;
+  }
+
+  // Close the MySQLi connection
+  $mysqli->close();
+} else {
   echo "Failed to run query: (" . $mysqli->errno . ") " . $mysqli->error;
   die();
 }
-if ($count <= 100) {
-  // View the results
-  echo 'Printing out: ' . $count . ' rows<br>';
-  echo '<pre>';
-  while($row = $result->fetch_assoc()) {
-    print_r($row);
-  }
-  echo '</pre>';
+
+/**** WRITE REPAIR ORDERS ****/
+/**** WRITE REPAIR ORDERS ****/
+/**** WRITE REPAIR ORDERS ****/
+
+// Write all Repair Orders to the file
+$written = $ftpWrapper->writeAll($rows);
+if ($written > 0) {
+  echo "Successfully wrote <b>$written</b> records to file<br><br>";
+  unset($rows);
 } else {
-  echo 'Too many rows to print out. Please limit to 100 rows. ';
-  echo "Found $count lines/tickets to export.\n";
+  echo "Failed to write any records to file";
+  die();
 }
 
-$result->close();
+// Upload the file
+// TODO: Uncomment the FTP call
+$uploaded = false; //$ftpWrapper->upload();
+if ($uploaded) {
+  echo "Successfully uploaded file to FTP server<br><br>";
+} else {
+  echo "Failed to upload file to FTP server";
+  die();
+}
 
-// TBD: Write to FTP file
+// This will delete the file that we just made
+$ftpWrapper->cleanUp();

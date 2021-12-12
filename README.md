@@ -10,6 +10,29 @@ P.S.,
 [GitHub Copilot](https://copilot.github.com/) was partially used for development, which is the reason for the unnecessarily long and descriptive comments.
 
 # Usage
+## Configuration File
+By default, all of the keys/passwords are pulled from a `config.ini` file. Here is the default file that you can choose to use:
+
+```
+CF_PARTNER=
+
+FTP_USERNAME=
+FTP_PASSWORD=
+
+SH_PRODUCTDATAID=
+SH_LOCATIONID=
+
+QV_PRODUCTDATAID=
+QV_LOCATIONID=
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=
+```
+
+___
+
 ## FTP
 This is a helper class for reporting repair data to the CARFAX VHR system. It substantially eases the load required of a developer to implement CARFAX vehicle history reporting from a proprietary DMS/SMS system.
 
@@ -315,6 +338,13 @@ public static function get(string $VIN) : array;
   ]
 }
 ```
+
+# FTP Integration Demo
+If you are in need of assistance in setting up the integration between your existing dealer/shop management system and the FTP helper class, see `sql-example.php`. This file is a general demonstration on how to integrate your system with the CARFAX vehicle history reporting FTP service. It was tested with 300,000 rows and completed (start to finish) in less than 6 seconds.
+
+PS,
+
+It's a demonstration file only. Do not implement it in an actual environment. It omits important validation and security practices for the sake of simplicity.
 
 # Requirements & Dependencies
 N/A
