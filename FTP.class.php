@@ -444,17 +444,4 @@ class FTP {
       $this->date->format("Y")
     );
   }
-
-  /**
-   * Enclose the string argument in double quotes
-   *
-   * @param string $v string to be enclosed
-   * @return string string enclosed in double quotes
-   * @throws None
-   * @author Alec M.
-   */
-  private function enclose(string $v) : string
-  {
-    return "\"" . $v . "\"";
-  }
 }
