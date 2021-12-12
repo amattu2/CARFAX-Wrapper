@@ -401,6 +401,11 @@ class FTP {
       return true;
     }
 
+    // Check if the file can be created
+    if (!is_readable(__DIR__) || !is_writable(__DIR__)) {
+      return false;
+    }
+
     // Generate new file
     if (!($this->handle = fopen(__DIR__ . "/" . $this->filename, "w"))) {
       return false;
