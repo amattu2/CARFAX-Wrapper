@@ -104,12 +104,16 @@ $query = "SELECT
   WHERE a.Private = 0
     AND c.Private = 0
     AND d.Private = 0
+    AND a.Deleted = 0
+    AND c.Deleted = 0
+    AND d.Active = 1
+    AND e.Deleted = 0
     AND a.Mileage > 0
     AND a.Total > 0
     AND a.TicketType = 'Invoice'
     AND CHAR_LENGTH(c.VIN) = 17
   ORDER BY a.EstNum ASC
-  LIMIT 300000, 100
+  LIMIT 310000, 125
 ";
 
 // Run the query
@@ -123,10 +127,10 @@ if ($result) {
   // Append the rows to an array
   while($row = $result->fetch_assoc()) {
     // Dynamically adjust values
-    $row['MANAGEMENT_SYSTEM'] = 'EXAMPLE MGMT SYS';
-    $row['LOCATION_ID'] = $config["CF_PARTNER"];
+    $row['MANAGEMENT_SYSTEM'] = $config['CF_MANAGEMENT_SYSTEM'];
+    $row['LOCATION_ID'] = $config["CF_LOCATIONID"];
     if ($row['LINE_TYPE'] === 'Labor') {
-      $row['LABOR_DESCRIPTION'] = $row['LINE_DESC'];
+      $row['SERVICE_DESCRIPTION'] = $row['LINE_DESC'];
     } else {
       $row['PART_NAME_DESCRIPTION'] = $row['LINE_DESC'];
       $row['PART_QUANTITY'] = $row['LINE_QUANTITY'];

@@ -15,6 +15,8 @@ By default, all of the keys/passwords are pulled from a `config.ini` file. Here 
 
 ```
 CF_PARTNER=
+CF_LOCATIONID=
+CF_MANAGEMENT_SYSTEM=
 
 FTP_USERNAME=
 FTP_PASSWORD=
