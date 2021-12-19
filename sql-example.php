@@ -164,7 +164,7 @@ if ($written > 0) {
 }
 
 // Upload the file
-// TODO: Uncomment the FTP call
+// TODO: Uncomment the FTP call to upload the file
 $uploaded = false; //$ftpWrapper->upload();
 if ($uploaded) {
   echo "Successfully uploaded file to FTP server<br><br>";
