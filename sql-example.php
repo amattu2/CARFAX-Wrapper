@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 /**
   * This is an example of running a MySQLi query to build the FTP file.
   *
@@ -27,6 +28,7 @@
   *
   * Don't run this on a production server. All validation is ommited.
   */
+
 
 /**
  * Based on simple principles, these are the conditions to exporting a ticket:
@@ -39,6 +41,7 @@
  *
  * This does not include basics like the ticket date is valid / set
  */
+
 
  /**** FILE SETUP ****/
  /**** FILE SETUP ****/
