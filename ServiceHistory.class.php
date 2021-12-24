@@ -135,7 +135,7 @@ class ServiceHistory {
         $formatted_result["Overview"][] = [
           "Name" => $category["serviceName"],
           "Date" => isset($category["dateOfLastService"]) ? $category["dateOfLastService"] : null,
-          "Odometer" => intval(str_replace(",", "", $category["odometerOfLastService"])) ?: 0,
+          "Odometer" => isset($category["odometerOfLastService"]) ? intval(str_replace(",", "", $category["odometerOfLastService"])) : 0,
         ];
       }
     }
