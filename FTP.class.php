@@ -35,7 +35,14 @@ class FTP {
    *
    * @var string
    */
-  private const HOST = "ftp://data.carfax.com";
+  private const HOST = "data.carfax.com";
+
+  /**
+   * VHR FTP port
+   *
+   * @var int
+   */
+  private const PORT = 21;
 
   /**
    * Report File Header Fields
@@ -297,6 +304,16 @@ class FTP {
       throw new FileUploadedException("The file has already been uploaded to the FTP server");
     }
 
+    // Check if ftp_connect is available
+    if (!function_exists("ftp_connect")) {
+      throw new \Exception("FTP extension is not available on this server");
+    }
+
+    // Check if report file exists
+    if (!file_exists($this->filename)) {
+      return false;
+    }
+
     // Check to see if the header has been written
     if (!$this->has_header) {
       return false;
@@ -317,31 +334,17 @@ class FTP {
       return false;
     }
 
-    // Connect to FTP server with cURL
-    $ch = curl_init();
-    $this->handle = fopen(__DIR__ . "/" . $this->filename, "r");
-    if ($this->handle && flock($this->handle, LOCK_EX)) {
-      curl_setopt($ch, CURLOPT_URL, "ftp://" . SELF::HOST . "/" . $this->filename);
-      curl_setopt($ch, CURLOPT_USERPWD, $this->username . ":" . $this->password);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-      curl_setopt($ch, CURLOPT_UPLOAD, 1);
-      curl_setopt($ch, CURLOPT_INFILE, $this->handle);
-      curl_setopt($ch, CURLOPT_INFILESIZE, filesize($this->filename));
+    // Open FTP Connection and upload
+    if (($ftp = @ftp_connect(FTP::HOST, FTP::PORT)) && @ftp_login($ftp, $this->username, $this->password)) {
+      // Push file
+      $status = ftp_put($ftp, $this->filename, $this->filename, FTP_BINARY);
 
-      // Execute the request
-      $exec = curl_exec($ch);
-      $err = curl_error($ch);
-
-      // Clean up
-      curl_close($ch);
-      flock($this->handle, LOCK_UN);
-      $this->was_uploaded = $exec && !$err;
+      // Close Connection
+      $this->was_uploaded = $status;
+      ftp_close($ftp);
     }
 
     // Return
-    fclose($this->handle);
-    $this->handle = null;
     return $this->was_uploaded;
   }
 

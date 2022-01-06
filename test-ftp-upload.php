@@ -107,7 +107,7 @@ $query = "SELECT
     AND a.TicketType = 'Invoice'
     AND CHAR_LENGTH(c.VIN) = 17
   ORDER BY a.EstNum ASC
-  LIMIT 300020, 25
+  LIMIT 300020, 250
 ";
 
 // Run the query
@@ -156,7 +156,7 @@ if ($written > 0) {
 
 // Upload the file
 // TODO: Uncomment the FTP call to upload the file
-//$uploaded = $ftpWrapper->upload();
+$uploaded = $ftpWrapper->upload();
 if ($uploaded) {
   echo "Successfully uploaded file to FTP server<br><br>";
 } else {
@@ -165,4 +165,8 @@ if ($uploaded) {
 }
 
 // This will delete the file that we just made
-$ftpWrapper->cleanUp();
+if ($ftpWrapper->cleanUp()) {
+  echo "Cleaned up the workspace<br><br>";
+} else {
+  echo "Failed to clean up the workspace<br><br>";
+}
