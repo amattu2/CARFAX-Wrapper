@@ -58,7 +58,7 @@ class FTP {
     "MODEL_YEAR",
     "PLATE",
     "PLATE_STATE",
-    "MANAGEMENT_SYSTEM", /* TBD */
+    "MANAGEMENT_SYSTEM",
     "LOCATION_ID",
     "LOCATION_NAME",
     "ADDRESS",
