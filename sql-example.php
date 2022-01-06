@@ -103,7 +103,7 @@ $query = "SELECT
     LEFT JOIN InvoiceItems b ON a.EstNum = b.EstNum
     LEFT JOIN Vehicles c ON c.CarId = a.CarId
     LEFT JOIN Customers d ON c.CusId = d.CusId
-    LEFT JOIN Accounts e ON a.AccountID = e.AccountID
+    LEFT JOIN application.Accounts e ON a.AccountID = e.AccountID
   WHERE a.Private = 0
     AND c.Private = 0
     AND d.Private = 0
@@ -116,7 +116,7 @@ $query = "SELECT
     AND a.TicketType = 'Invoice'
     AND CHAR_LENGTH(c.VIN) = 17
   ORDER BY a.EstNum ASC
-  LIMIT 310000, 125
+  LIMIT 300020, 25
 ";
 
 // Run the query
@@ -130,7 +130,7 @@ if ($result) {
   // Append the rows to an array
   while($row = $result->fetch_assoc()) {
     // Dynamically adjust values
-    $row['MANAGEMENT_SYSTEM'] = $config['CF_MANAGEMENT_SYSTEM'];
+    $row['MANAGEMENT_SYSTEM'] = $config["CF_MANAGEMENT_SYSTEM"];
     $row['LOCATION_ID'] = $config["CF_LOCATIONID"];
     if ($row['LINE_TYPE'] === 'Labor') {
       $row['SERVICE_DESCRIPTION'] = $row['LINE_DESC'];
@@ -177,4 +177,4 @@ if ($uploaded) {
 }
 
 // This will delete the file that we just made
-$ftpWrapper->cleanUp();
+//$ftpWrapper->cleanUp();
