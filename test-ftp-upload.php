@@ -42,11 +42,6 @@
  * This does not include basics like the ticket date is valid / set
  */
 
-
- /**** FILE SETUP ****/
- /**** FILE SETUP ****/
- /**** FILE SETUP ****/
-
 // Include the FTP class
 require(__DIR__ . '/FTP.class.php');
 
@@ -64,10 +59,6 @@ if ($mysqli->connect_errno) {
   echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
   die();
 }
-
-/**** MYSQLI DATA EXTRACTION ****/
-/**** MYSQLI DATA EXTRACTION ****/
-/**** MYSQLI DATA EXTRACTION ****/
 
 // The query to get the tickets
 // TODO: Change this to match your database structure
@@ -152,9 +143,6 @@ if ($result) {
   die();
 }
 
-/**** WRITE REPAIR ORDERS ****/
-/**** WRITE REPAIR ORDERS ****/
-/**** WRITE REPAIR ORDERS ****/
 
 // Write all Repair Orders to the file
 $written = $ftpWrapper->writeAll($rows);
@@ -168,7 +156,7 @@ if ($written > 0) {
 
 // Upload the file
 // TODO: Uncomment the FTP call to upload the file
-$uploaded = false; //$ftpWrapper->upload();
+//$uploaded = $ftpWrapper->upload();
 if ($uploaded) {
   echo "Successfully uploaded file to FTP server<br><br>";
 } else {
@@ -177,4 +165,4 @@ if ($uploaded) {
 }
 
 // This will delete the file that we just made
-//$ftpWrapper->cleanUp();
+$ftpWrapper->cleanUp();
