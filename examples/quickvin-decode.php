@@ -1,9 +1,9 @@
 <?php
 /*
- * Produced: Thu Jan 06 2022
+ * Produced: Sat Dec 11 2021
  * Author: Alec M.
  * GitHub: https://amattu.com/links/github
- * Copyright: (C) 2022 Alec M.
+ * Copyright: (C) 2021 Alec M.
  * License: License GNU Affero General Public License v3.0
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,19 +21,19 @@
  */
 
 /**
- * Use this file to test your FTP credentials using the same connection
- * method that the CARFAX FTP helper class uses
- */
+ * This is a basic test file for demonstrating the usage of the QuickVIN class.
+*/
 
-// Parse config details
-$config = parse_ini_file(__DIR__ . '/config.ini');
+// Config .ini file for testing purposes
+$conf = parse_ini_file('config.ini');
 
-// Connect to the FTP server
-$ftp = ftp_connect("data.carfax.com", 21);
-echo $ftp ? "connected" : "not conn";
+// Required file
+require(__DIR__ . "/QuickVIN.class.php");
 
-// Login to the FTP server
-echo ftp_login($ftp, $config['FTP_USERNAME'], $config['FTP_PASSWORD']) ? "logged in" : "not";
+amattu\CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
+amattu\CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
 
-// Disconnect
-ftp_close($ftp);
+// Basic example
+echo "<pre>";
+amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
+echo "</pre>";

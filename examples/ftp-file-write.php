@@ -21,22 +21,19 @@
  */
 
 /**
- * This is a basic test file for demonstrating the usage of the FTP, QuickVIN, and ServiceHistory classes.
+ * This is a basic test file for demonstrating the usage of the FTP file writing
 */
-
-// Config .ini file for testing purposes
-$conf = parse_ini_file('config.ini');
 
 // FTP Helper Examples
 require(__DIR__ . "/FTP.class.php");
 
-$ftpWrapper = new amattu\CARFAX\FTP("examplePTNER", "username", "password");
+$ftpWrapper = new amattu\CARFAX\FTP("partner_name", "username", "password");
 
 $cont = [];
 
 for ($i = 0; $i < 30; $i++) {
     $cont[] = [
-        "VIN" => "1G1GCCBX3JX001788",
+        "VIN" => "1G1GCCBX4JX001788",
         "RO_OPEN_DATE" => "01/01/2017",
         "RO_CLOSE_DATE" => "01/01/2017",
         "MILEAGE" => 198301,
@@ -68,31 +65,3 @@ $ftpWrapper->writeAll($cont);
 
 // This will delete the file that we just made
 $ftpWrapper->cleanUp();
-
-/* Service History Check (SHC) Examples */
-
-// Required file
-require(__DIR__ . "/ServiceHistory.class.php");
-
-// Configure the Service History class
-amattu\CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
-amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
-
-// Basic example
-//echo "<pre>";
-//print_r(amattu\CARFAX\ServiceHistory::get("3GYFNAEY2BS585380"));
-//echo "</pre>";
-
-
-/* QuickVIN Example */
-
-// Required file
-require(__DIR__ . "/QuickVIN.class.php");
-
-amattu\CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
-amattu\CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
-
-// Basic example
-//echo "<pre>";
-//amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
-//echo "</pre>";
