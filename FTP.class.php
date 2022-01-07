@@ -358,17 +358,28 @@ class FTP {
    */
   public function cleanUp() : bool
   {
+    // Check to see if file is a file
+    if (!is_file(__DIR__ . "/" . $this->filename)) {
+      return false;
+    }
+
     // Check to see if the file exists
     if (!file_exists(__DIR__ . "/" . $this->filename)) {
       return true;
     }
 
-    // Reset variables
-    $this->total_lines = 0;
-    $this->has_header = false;
-
     // Delete the file
-    return unlink(__DIR__ . "/" . $this->filename);
+    if (unlink(__DIR__ . "/" . $this->filename)) {
+      // Reset variables
+      $this->total_lines = 0;
+      $this->has_header = false;
+
+      // Return
+      return true;
+    }
+
+    // Default
+    return false;
   }
 
   /**
