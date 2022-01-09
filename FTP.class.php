@@ -310,7 +310,7 @@ class FTP {
     }
 
     // Check if report file exists
-    if (!file_exists($this->filename)) {
+    if (!file_exists(__DIR__ . "/" . $this->filename)) {
       return false;
     }
 
@@ -337,7 +337,7 @@ class FTP {
     // Open FTP Connection and upload
     if (($ftp = @ftp_connect(FTP::HOST, FTP::PORT)) && @ftp_login($ftp, $this->username, $this->password)) {
       // Push file
-      $status = ftp_put($ftp, $this->filename, $this->filename, FTP_BINARY);
+      $status = ftp_put($ftp, __DIR__ . "/" . $this->filename, $this->filename, FTP_BINARY);
 
       // Close Connection
       $this->was_uploaded = $status;
@@ -396,6 +396,22 @@ class FTP {
   }
 
   /**
+   * Return full path to report file
+   *
+   * @return string|null full file path
+   */
+  public function getFilePath() : ?string
+  {
+    // Check if report file exists
+    if (!file_exists(__DIR__ . "/" . $this->filename)) {
+      return null;
+    }
+
+    // Default
+    return __DIR__ . "/" . $this->filename;
+  }
+
+  /**
    * Write Report File Header into File
    *
    * @param None
@@ -411,7 +427,7 @@ class FTP {
     }
 
     // Check if file exists
-    if (file_exists($this->filename) && $this->has_header) {
+    if (file_exists(__DIR__. "/" . $this->filename) && $this->has_header) {
       return true;
     }
 
