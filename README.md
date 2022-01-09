@@ -348,5 +348,8 @@ PS,
 
 It's a demonstration file only. Do not implement it in an actual environment. It omits important validation and security practices for the sake of simplicity.
 
+# Todo:
+- Merge `PARTNER_NAME` with `MANAGEMENT_SYSTEM` as they should be identical
+
 # Requirements & Dependencies
 N/A
