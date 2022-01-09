@@ -21,7 +21,7 @@
  */
 
 // Files
-require(__DIR__ ."/FTP.class.php");
+require(__DIR__ ."/../FTP.class.php");
 
 // Variables
 $config = parse_ini_file(__DIR__ . '/config.ini');
@@ -67,7 +67,7 @@ $query = "SELECT
     LEFT JOIN Customers d ON c.CusId = d.CusId
     LEFT JOIN application.Accounts e ON a.AccountID = e.AccountID
   WHERE a.CF_Exported = 0
-		AND a.Private = 0
+    AND a.Private = 0
     AND c.Private = 0
     AND d.Private = 0
     AND a.Deleted = 0
@@ -77,26 +77,30 @@ $query = "SELECT
     AND a.Mileage > 0
     AND a.Total > 0
     AND a.TicketType = 'Invoice'
-    AND CHAR_LENGTH(c.VIN) = 17
-		AND a.Updated < DATE_SUB(NOW(), INTERVAL 1 WEEK)
+    AND a.Updated < DATE_SUB(NOW(), INTERVAL 1 WEEK)
   ORDER BY a.EstNum ASC
 ";
 $success = 0;
 $rows = [];
 $written = 0;
+$tickets = [];
 
 // Fetch Tickets
 if ($con->select_db("udb_1") && $result = $con->query($query)) {
-  echo "Query successful.<br><br>";
+  echo "MySQL query is successful<br><br>";
 
   // Iterate through line items
   while ($row = $result->fetch_assoc()) {
+    // Check for invalid VIN
+    if ($row["VIN"] == 0 || strlen($row["VIN"]) != 17) {
+      continue;
+    }
+
     // Update MANAGEMENT_SYSTEM field
     $row['MANAGEMENT_SYSTEM'] = $config["CF_MANAGEMENT_SYSTEM"];
 
     // Update unique LOCATION_ID field
     $row['LOCATION_ID'] = $config["CF_MANAGEMENT_SYSTEM"] . $row["ACCOUNT_ID"];
-    unset($row["ACCOUNT_ID"]);
 
     // Update LINE_TYPE, PART_NAME_DESCRIPTION, PART_QUANTITY, and LABOR_DESCRIPTION fields
     if ($row['LINE_TYPE'] === 'Labor') {
@@ -118,7 +122,20 @@ if ($con->select_db("udb_1") && $result = $con->query($query)) {
 // Write Repair Orders
 if (!empty($rows)) {
   echo "There are " . count($rows) . " rows to write.<br><br>";
+
+  // Find Unique Tickets
+  $tickets = array_intersect_key($rows, array_unique(array_column($rows, 'RO_INVOICE_NUMBER')));
+
+  // Write Tickets
+  array_walk($rows, function(&$a) { unset($a['ACCOUNT_ID']); });
   $written = $wrapper->writeAll($rows);
+  unset($rows);
+
+  // Output Unique Ticket details
+  echo "There were " . count($tickets) . " unique tickets.<br><br> Eg.<code>";
+  echo "<pre>";
+  print_r($tickets[0]);
+  echo "</pre></code><br><br>";
 } else {
   echo "There are <b>no</b> rows to write.<br><br>";
 }
@@ -128,6 +145,8 @@ if ($written > 0) {
   echo "Uploading the file to the FTP server<br><br>";
   // TODO: Enable this
   $success = 1; //$wrapper->upload() ? 1 : 0;
+
+  echo "Uploading the file was " . ($success ? "successful" : "unsuccessful") . "<br><br>";
 } else {
   echo "There are <b>no</b> rows to upload to the server.<br><br>";
 }
@@ -136,19 +155,34 @@ if ($written > 0) {
 if ($success && $written > 0) {
   echo "Updating ticket CF_Exported columns<br><br>";
 
-  // Pull Unique Tickets
-  $estnums = array_unique(array_column($rows, 'RO_INVOICE_NUMBER'));
-
   // Set Exported Flag
-  if ($con->select_db("udb_1") && $stmt = $con->prepare("UPDATE Invoices SET Updated = Updated, CF_Exported = 1 WHERE EstNum = ? AND Deleted = 0 LIMIT 1")) {
+  if ($con->select_db("udb_1") && $stmt = $con->prepare("UPDATE Invoices SET Updated = Updated, CF_Exported = 1 WHERE EstNum = ? AND AccountID = ? AND Deleted = 0 LIMIT 1")) {
     $EstNum = 0;
+    $AccountID = 0;
     $suc = 0;
-    $stmt->bind_param("i", $EstNum);
-    foreach ($estnums as $EstNum) {
+    $stmt->bind_param("ii", $EstNum, $AccountID);
+    foreach ($tickets as $ticket) {
+      $EstNum = $ticket['RO_INVOICE_NUMBER'];
+      $AccountID = $ticket['ACCOUNT_ID'];
       $suc += $stmt->execute();
     }
     $stmt->close();
-    echo "Updated $suc tickets.<br><br>";
+    echo "Updated $suc tickets successfully.<br><br>";
+  }
+
+  // Insert Log
+  if ($con->select_db("logs") && $stmt = $con->prepare("INSERT INTO TicketExports (EstNum, isCARFAX, AccountID) VALUES (?, 1, ?)")) {
+    $EstNum = 0;
+    $AccountID = 0;
+    $suc = 0;
+    $stmt->bind_param("ii", $EstNum, $AccountID);
+    foreach ($tickets as $ticket) {
+      $EstNum = $ticket['RO_INVOICE_NUMBER'];
+      $AccountID = $ticket['ACCOUNT_ID'];
+      $suc += $stmt->execute();
+    }
+    $stmt->close();
+    echo "Inserted $suc ticket logs successfully.<br><br>";
   }
 } else {
   echo "There are <b>no</b> tickets to update.<br><br>";
@@ -163,5 +197,5 @@ if ($con->select_db("logs") && $stmt = $con->prepare("INSERT INTO Cron (Task, Su
 }
 
 // Delete file, close connection
-$wrapper->cleanUp();
+//$wrapper->cleanUp();
 $con->close();
