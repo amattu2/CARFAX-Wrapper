@@ -85,7 +85,6 @@ $query = "SELECT
     AND a.TicketType = 'Invoice'
     AND a.Updated < DATE_SUB(NOW(), INTERVAL 1 WEEK)
   ORDER BY a.EstNum ASC
-  LIMIT 100000
 ";
 $success = 0;
 $tickets = [];
@@ -165,6 +164,7 @@ function prof_print() {
     echo sprintf("&nbsp;&nbsp;&nbsp;%s<br>", formatBytes($prof_memory[$i]));
   }
   echo "<b>{$prof_names[$size-1]}</b><br>";
+  echo "<b>Script peak usage: ". formatBytes(memory_get_peak_usage()) ."</b>";
 }
 
 function formatBytes($bytes, $precision = 2) {
