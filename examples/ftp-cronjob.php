@@ -100,7 +100,7 @@ if ($con->select_db("udb_1") && $result = $con->query($query)) {
     $row['MANAGEMENT_SYSTEM'] = $config["CF_MANAGEMENT_SYSTEM"];
 
     // Update unique LOCATION_ID field
-    $row['LOCATION_ID'] = $config["CF_MANAGEMENT_SYSTEM"] . $row["ACCOUNT_ID"];
+    $row['LOCATION_ID'] = $config["CF_MANAGEMENT_SYSTEM"] . "_" . $row["ACCOUNT_ID"];
 
     // Update LINE_TYPE, PART_NAME_DESCRIPTION, PART_QUANTITY, and LABOR_DESCRIPTION fields
     if ($row['LINE_TYPE'] === 'Labor') {
