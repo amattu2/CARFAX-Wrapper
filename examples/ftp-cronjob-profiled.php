@@ -39,55 +39,56 @@ $con = new mysqli($config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $c
 $wrapper = new amattu\CARFAX\FTP($config["CF_PARTNER"], $config["FTP_USERNAME"], $config["FTP_PASSWORD"]);
 $fileName = basename(__FILE__);
 $query = "SELECT
-    c.VIN AS VIN,
-    DATE_FORMAT(a.EstDate, '%m/%d/%Y') AS RO_OPEN_DATE,
-    DATE_FORMAT(a.EstDate, '%m/%d/%Y') AS RO_CLOSE_DATE,
-    a.Mileage AS MILEAGE,
-    'MI' as ODOMETER_MEASURE,
-    a.EstNum AS RO_INVOICE_NUMBER,
-    '' AS SERVICE_DESCRIPTION,
-    '' AS LABOR_DESCRIPTION,
-    '' AS PART_NAME_DESCRIPTION,
-    '' AS PART_QUANTITY,
-    b.JobDesc AS LINE_DESC,
-    b.Quantity AS LINE_QUANTITY,
-    b.InvType AS LINE_TYPE,
-    c.Make AS MAKE,
-    c.Model AS MODEL,
-    c.ModYear AS MODEL_YEAR,
-    '' AS PLATE,
-    '' AS PLATE_STATE,
-    'NA' AS MANAGEMENT_SYSTEM,
-    'NA' AS LOCATION_ID,
-    e.AccountID as 'ACCOUNT_ID',
-    e.Name AS LOCATION_NAME,
-    e.Street AS ADDRESS,
-    e.City AS CITY,
-    e.State AS STATE,
-    e.Zip AS POSTAL_CODE,
-    '' AS PHONE,
-    '' AS URL
-  FROM Invoices a
-    LEFT JOIN InvoiceItems b ON a.EstNum = b.EstNum
-    LEFT JOIN Vehicles c ON c.CarId = a.CarId
-    LEFT JOIN Customers d ON c.CusId = d.CusId
-    LEFT JOIN application.Accounts e ON a.AccountID = e.AccountID
-  WHERE a.CF_Exported = 0
-    AND a.Private = 0
-    AND c.Private = 0
-    AND d.Private = 0
-    AND a.Deleted = 0
-    AND c.Deleted = 0
-    AND d.Active = 1
-    AND e.Deleted = 0
-    AND a.Mileage > 0
-    AND a.Total > 0
-    AND a.TicketType = 'Invoice'
-    AND a.Updated < DATE_SUB(NOW(), INTERVAL 1 WEEK)
-  ORDER BY a.EstNum ASC
+  c.VIN AS VIN,
+  DATE_FORMAT(a.EstDate, '%m/%d/%Y') AS RO_OPEN_DATE,
+  '' AS RO_CLOSE_DATE,
+  a.Mileage AS MILEAGE,
+  'MI' as ODOMETER_MEASURE,
+  a.EstNum AS RO_INVOICE_NUMBER,
+  '' AS SERVICE_DESCRIPTION,
+  '' AS LABOR_DESCRIPTION,
+  '' AS PART_NAME_DESCRIPTION,
+  '' AS PART_QUANTITY,
+  b.JobDesc AS LINE_DESC,
+  b.Quantity AS LINE_QUANTITY,
+  b.InvType AS LINE_TYPE,
+  c.Make AS MAKE,
+  c.Model AS MODEL,
+  c.ModYear AS MODEL_YEAR,
+  '' AS PLATE,
+  '' AS PLATE_STATE,
+  'NA' AS MANAGEMENT_SYSTEM,
+  'NA' AS LOCATION_ID,
+  e.AccountID as ACCOUNT_ID,
+  e.Name AS LOCATION_NAME,
+  e.Street AS ADDRESS,
+  e.City AS CITY,
+  e.State AS STATE,
+  e.Zip AS POSTAL_CODE,
+  '' AS PHONE,
+  '' AS URL
+FROM Invoices a
+  LEFT JOIN InvoiceItems b ON a.EstNum = b.EstNum
+  LEFT JOIN Vehicles c ON a.CarId = c.CarId
+  LEFT JOIN Customers d ON a.CusID = d.CusID
+  LEFT JOIN application.Accounts e ON a.AccountID = e.AccountID
+WHERE a.CF_Exported = 0
+  AND a.Private = 0
+  AND c.Private = 0
+  AND d.Private = 0
+  AND a.Deleted = 0
+  AND c.Deleted = 0
+  AND d.Active = 1
+  AND e.Deleted = 0
+  AND a.Mileage > 0
+  AND a.Total > 0
+  AND a.TicketType = 'Invoice'
+  AND a.Updated < DATE_SUB(NOW(), INTERVAL 1 WEEK)
+ORDER BY a.EstNum ASC
 ";
 $success = 0;
 $tickets = [];
+$ignored = 0;
 
 prof_flag("Variables Defined");
 
@@ -98,7 +99,8 @@ if ($con->select_db("udb_1") && $result = $con->query($query)) {
   // Iterate through line items
   while ($row = $result->fetch_assoc()) {
     // Check for invalid VIN
-    if ($row["VIN"] == 0 || strlen($row["VIN"]) != 17) {
+    if (!$row["VIN"] || $row["VIN"] == 0 || strlen($row["VIN"]) != 17) {
+      $ignored++;
       continue;
     }
 
@@ -129,7 +131,7 @@ if ($con->select_db("udb_1") && $result = $con->query($query)) {
     $wrapper->write($row);
   }
   $result->close();
-  prof_flag("Query Closed | Iterated through rows and wrote to file");
+  prof_flag("Query Closed | Iterated through rows and wrote {$wrapper->getTotalReports()} to file, ignored $ignored");
 }
 
 // Write Repair Orders
