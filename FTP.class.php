@@ -412,6 +412,23 @@ class FTP {
   }
 
   /**
+   * Get report file name
+   *
+   * @return string|null report file name
+   * @author Alec M.
+   */
+  public function getFileName() : ?string
+  {
+    // Check if report file exists
+    if (!file_exists(__DIR__ . "/" . $this->filename)) {
+      return null;
+    }
+
+    // Default
+    return $this->filename;
+  }
+
+  /**
    * Write Report File Header into File
    *
    * @param None

@@ -190,6 +190,35 @@ $numRecords = $wrapper->getTotalRecords();
  */
 public function getTotalRecords() : int
 ```
+
+### getFilePath
+#### Usage
+This returns the fully-qualified path to the report file if the file exists.
+
+#### PHPDoc
+```PHP
+/**
+ * Return full path to report file
+ *
+ * @return string|null full file path
+ */
+public function getFilePath() : ?string
+```
+
+### getFileName
+#### Usage
+This returns the filename of the report file if it exists.
+
+#### PHPDoc
+```PHP
+/**
+ * Get report file name
+ *
+ * @return string|null report file name
+ * @author Alec M.
+ */
+public function getFileName() : ?string
+```
 ___
 
 ## ServiceHistory
