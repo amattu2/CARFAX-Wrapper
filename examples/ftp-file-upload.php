@@ -52,7 +52,7 @@ $config = parse_ini_file(__DIR__ . '/config.ini');
 $mysqli = new mysqli($config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_NAME']);
 
 // Initialize the FTP wrapper using config credentials
-$ftpWrapper = new amattu\CARFAX\FTP($config["CF_PARTNER"], $config["FTP_USERNAME"], $config["FTP_PASSWORD"]);
+$ftpWrapper = new amattu\CARFAX\FTP($config["FTP_USERNAME"], $config["FTP_PASSWORD"], $config["CF_PARTNER"]);
 
 // Ensure the connection is working
 if ($mysqli->connect_errno) {

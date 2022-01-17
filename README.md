@@ -51,15 +51,15 @@ $wrapper = new amattu\CARFAX\FTP();
 /**
  * Class Constructor
  *
- * @param string $partner_name CARFAX Partner Name
  * @param string $username CARFAX FTP username
  * @param string $password CARFAX FTP password
+ * @param ?string $partner_name CARFAX Partner Name
  * @param ?string $type Data Report Type ("HIST" or "PROD")
  * @param ?DateTime $date Data Report Date
  * @throws None
  * @author Alec M.
  */
-public function __construct(string $partner_name, string $username, string $password, string $type = "PROD", \DateTime $date = null);
+public function __construct(string $username, string $password, string $partner_name = "", string $type = "PROD", \DateTime $date = null);
 ```
 
 ___

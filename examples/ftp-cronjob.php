@@ -27,9 +27,9 @@ require(__DIR__ ."/../FTP.class.php");
 $config = parse_ini_file(__DIR__ . '/config.ini');
 $con = new mysqli($config['DB_HOST'], $config['DB_USER'], $config['DB_PASS'], $config['DB_NAME']);
 $wrapper = new amattu\CARFAX\FTP(
-	$config["CF_PARTNER"],
 	$config["FTP_USERNAME"],
 	$config["FTP_PASSWORD"],
+  $config["CF_PARTNER"]
 );
 $fileName = basename(__FILE__);
 $query = "SELECT
