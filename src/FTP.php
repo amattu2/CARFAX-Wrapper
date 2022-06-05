@@ -21,10 +21,12 @@
  */
 
 // Class Namespace
-namespace amattu\CARFAX;
+namespace CARFAX;
 
-// Exceptions
-class FileUploadedException extends \Exception {}
+use DateTime;
+use Exception;
+
+class FileUploadedException extends Exception {}
 
 /**
  * This is a CARFAX VHR service history FTP integration helper class
@@ -107,7 +109,7 @@ class FTP {
   /**
    * Data Report Date
    *
-   * @var \DateTime
+   * @var DateTime
    */
   private $date = null;
 
@@ -153,13 +155,12 @@ class FTP {
    *
    * @param string $username CARFAX FTP username
    * @param string $password CARFAX FTP password
-   * @param ?string $partner_name CARFAX Partner Name
-   * @param ?string $type Data Report Type ("HIST" or "PROD")
-   * @param ?DateTime $date Data Report Date
-   * @throws None
+   * @param string|null $partner_name CARFAX Partner Name
+   * @param string|null $type Data Report Type ("HIST" or "PROD")
+   * @param DateTime|null $date Data Report Date
    * @author Alec M.
    */
-  public function __construct(string $username, string $password, string $partner_name = "", string $type = "PROD", \DateTime $date = null)
+  public function __construct(string $username, string $password, string $partner_name = "", string $type = "PROD", DateTime $date = null)
   {
     // Set connection details
     $this->username = $username;
@@ -170,7 +171,7 @@ class FTP {
     $this->type = $type === "HIST" ? "HIST" : "PROD";
 
     // Set report date
-    $this->date = $date ?: new \DateTime();
+    $this->date = $date ?: new DateTime();
   }
 
   /**
@@ -292,7 +293,6 @@ class FTP {
   /**
    * Connect to the FTP server and upload the file
    *
-   * @param None
    * @return bool
    * @throws FileUploadedException
    * @author Alec M.
@@ -306,7 +306,7 @@ class FTP {
 
     // Check if ftp_connect is available
     if (!function_exists("ftp_connect")) {
-      throw new \Exception("FTP extension is not available on this server");
+      throw new Exception("FTP extension is not available on this server");
     }
 
     // Check if report file exists
@@ -351,9 +351,7 @@ class FTP {
   /**
    * Clean up the workspace by deleting the report file
    *
-   * @param None
    * @return boolean
-   * @throws None
    * @author Alec M.
    */
   public function cleanUp() : bool
@@ -385,9 +383,7 @@ class FTP {
   /**
    * Return the total Repair Orders written to the file
    *
-   * @param None
    * @return int number of Repair Orders written
-   * @throws None
    * @author Alec M.
    */
   public function getTotalReports() : int
@@ -431,9 +427,7 @@ class FTP {
   /**
    * Write Report File Header into File
    *
-   * @param None
    * @return bool
-   * @throws None
    * @author Alec M.
    */
   private function writeHeader() : bool
@@ -475,9 +469,7 @@ class FTP {
    *       <partner_name>_<type>_RO_<MMDDYYYY>.txt
    *       PartnerName_DataStatus_DataType_FileExportDate.txt
    *
-   * @param None
    * @return string
-   * @throws None
    * @author Alec M.
    */
   private function generateFileName() : string

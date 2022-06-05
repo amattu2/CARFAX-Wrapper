@@ -21,7 +21,13 @@
  */
 
 // Class Namespace
-namespace amattu\CARFAX;
+namespace CARFAX;
+
+use SimpleXMLElement;
+use Exception;
+use TypeError;
+use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * This is a CARFAX QuickVIN API wrapper class
@@ -88,27 +94,27 @@ class QuickVIN {
   {
     // Validate the data plate argument
     if (empty($plate) || strlen($plate) < 1 || strlen($plate) > 10) {
-      throw new \InvalidArgumentException("Invalid Plate Number provided");
+      throw new InvalidArgumentException("Invalid Plate Number provided");
     }
 
     // Validate the state argument
     if (empty($state) || strlen($state) != 2) {
-      throw new \InvalidArgumentException("Invalid Plate State provided");
+      throw new InvalidArgumentException("Invalid Plate State provided");
     }
 
     // Validate the VIN argument if provided
     if ($VIN && !empty($VIN) && strlen($VIN) != 17) {
-      throw new \InvalidArgumentException("Invalid VIN provided");
+      throw new InvalidArgumentException("Invalid VIN provided");
     }
 
     // Validate the Product Data ID
     if (empty(self::$productDataId) || strlen(self::$productDataId) != 16) {
-      throw new \UnexpectedValueException("Product Data ID is not valid");
+      throw new UnexpectedValueException("Product Data ID is not valid");
     }
 
     // Validate the Location ID
     if (empty(self::$locationId) || strlen(self::$locationId) <= 1 || strlen(self::$locationId) > 50) {
-      throw new \UnexpectedValueException("Location ID is not valid");
+      throw new UnexpectedValueException("Location ID is not valid");
     }
 
     // Make the request
@@ -178,7 +184,7 @@ class QuickVIN {
   private static function buildXML(array $data) : string
   {
     // Build the XML Request
-    $xml = new \SimpleXMLElement("<carfax-request></carfax-request>");
+    $xml = new SimpleXMLElement("<carfax-request></carfax-request>");
 
     // Add elements
     foreach ($data as $key => $value) {
@@ -208,15 +214,15 @@ class QuickVIN {
 
     // Build the XML element
     try {
-      $data = new \SimpleXMLElement($xml);
-    } catch (\Exception $e) {
+      $data = new SimpleXMLElement($xml);
+    } catch (Exception $e) {
       return null;
     }
 
     // Attempt to parse the XML
     try {
       return json_decode(json_encode($data), true);
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       return null;
     }
   }

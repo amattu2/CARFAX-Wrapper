@@ -1,0 +1,18 @@
+{
+    "name": "amattu2/carfax-wrapper",
+    "description": "A CARFAX vehicle history reporting helper class. Offers support for sending reports to the CARFAX VHR, decoding a license plate to VIN, and pulling CARFAX stored service history data.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "CARFAX\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alec M.",
+            "email": "alecmattu1234@gmail.com"
+        }
+    ],
+    "require": {}
+}

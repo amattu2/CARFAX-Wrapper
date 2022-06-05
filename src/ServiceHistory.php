@@ -21,7 +21,10 @@
  */
 
 // Class Namespace
-namespace amattu\CARFAX;
+namespace CARFAX;
+
+use UnexpectedValueException;
+use InvalidArgumentException;
 
 /**
  * This is a CARFAX Service History API wrapper class
@@ -89,17 +92,17 @@ class ServiceHistory {
   {
     // Validate the VIN
     if (!preg_match("/^[A-Z0-9]{17}$/", $VIN) || strlen($VIN) != 17) {
-      throw new \InvalidArgumentException("Invalid VIN provided");
+      throw new InvalidArgumentException("Invalid VIN provided");
     }
 
     // Validate the Product Data ID
     if (self::$productDataId == "" || strlen(self::$productDataId) != 16) {
-      throw new \UnexpectedValueException("Product Data ID not valid");
+      throw new UnexpectedValueException("Product Data ID not valid");
     }
 
     // Validate the Location ID
     if (self::$locationId == "" || strlen(self::$locationId) <= 1 || strlen(self::$locationId) > 50) {
-      throw new \UnexpectedValueException("Location ID not valid");
+      throw new UnexpectedValueException("Location ID not valid");
     }
 
     // Submit the request
@@ -161,7 +164,6 @@ class ServiceHistory {
    *
    * @param array $fields
    * @return ?array $response
-   * @throws None
    * @author Alec M.
    */
   private static function post(array $fields) : ?array
