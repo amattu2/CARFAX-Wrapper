@@ -28,12 +28,26 @@
 $conf = parse_ini_file('config.ini');
 
 // Required file
-require(__DIR__ . "/QuickVIN.class.php");
+require(dirname(__DIR__, 1) . "/vendor/autoload.php");
 
-amattu\CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
-amattu\CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
+CARFAX\QuickVIN::setLocationId($conf['QV_LOCATIONID']);
+CARFAX\QuickVIN::setProductDataId($conf['QV_PRODUCTDATAID']);
 
 // Basic example
 echo "<pre>";
-amattu\CARFAX\QuickVIN::decode("1CC9836", "MD");
+$xml = CARFAX\QuickVIN::decode($_GET['tag'] ?? "HELLO", $_GET['state'] ?? "VA");
+$decode = $xml?->{"quickvinplus"}?->{"vin-info"}?->{"carfax-vin-decode"}?->{"trim"};
+print_r($decode);
+echo "<hr>";
+echo $xml?->{"quickvinplus"}?->{"vin-info"}->vin;
+echo "<hr>";
+echo $decode?->{"base-year-model"};
+echo "<hr>";
+echo $decode?->{"base-make-name"};
+echo "<hr>";
+echo $decode?->{"nonoem-base-model"};
+echo "<hr>";
+echo trim(preg_replace('/\s+/', ' ', $decode?->{"oem-engine-information"}));
+echo "<hr>";
+echo $decode?->{"nonoem-submodel1"};
 echo "</pre>";

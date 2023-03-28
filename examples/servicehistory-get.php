@@ -31,10 +31,10 @@ $conf = parse_ini_file('config.ini');
 require(__DIR__ . "/ServiceHistory.class.php");
 
 // Configure the Service History class
-amattu\CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
-amattu\CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
+CARFAX\ServiceHistory::setLocationId($conf['SH_LOCATIONID']);
+CARFAX\ServiceHistory::setProductDataId($conf['SH_PRODUCTDATAID']);
 
 // Basic example
 echo "<pre>";
-print_r(amattu\CARFAX\ServiceHistory::get("1G6DF577080179400"));
+print_r(CARFAX\ServiceHistory::get("1G6DF577080179400"));
 echo "</pre>";

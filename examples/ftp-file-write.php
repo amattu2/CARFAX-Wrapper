@@ -27,7 +27,7 @@
 // FTP Helper Examples
 require(__DIR__ . "/../FTP.class.php");
 
-$ftpWrapper = new amattu\CARFAX\FTP("username", "password", "partner_name");
+$ftpWrapper = new CARFAX\FTP("username", "password", "partner_name");
 
 $cont = [];
 

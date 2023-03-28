@@ -4,6 +4,8 @@ node_modules/
 vendor/
 
 # Specific Files
+thunderEnvironment.json
+thunderActivity.json
 
 # File Types
 *.ini
