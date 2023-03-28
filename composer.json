@@ -17,6 +17,7 @@
     "require": {
         "php": ">=7.4.0",
         "ext-curl": "*",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "ext-xml": "*"
     }
 }
