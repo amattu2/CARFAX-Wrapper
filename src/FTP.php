@@ -335,9 +335,9 @@ class FTP {
     }
 
     // Open FTP Connection and upload
-    if (($ftp = @ftp_connect(FTP::HOST, FTP::PORT)) && @ftp_login($ftp, $this->username, $this->password)) {
+    if (($ftp = @ftp_connect(FTP::HOST, FTP::PORT)) && @ftp_login($ftp, $this->username, $this->password) && @ftp_pasv($ftp, true)) {
       // Push file
-      $status = ftp_put($ftp, $this->filename, __DIR__ . "/" . $this->filename, FTP_BINARY);
+      $status = ftp_put($ftp, $this->filename, __DIR__ . "/" . $this->filename, FTP_ASCII);
 
       // Close Connection
       $this->was_uploaded = $status;
